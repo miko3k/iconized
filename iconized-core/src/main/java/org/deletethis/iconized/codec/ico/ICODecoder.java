@@ -9,16 +9,18 @@
 
 package org.deletethis.iconized.codec.ico;
 
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
 import org.deletethis.iconized.codec.bmp.ColorEntry;
 import org.deletethis.iconized.codec.bmp.InfoHeader;
 import org.deletethis.iconized.io.CountingInputStream;
-import org.deletethis.iconized.io.EndianUtils;
 import org.deletethis.iconized.io.LittleEndianInputStream;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.BufferedInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Decodes images in ICO format.
@@ -26,14 +28,10 @@ import org.deletethis.iconized.io.LittleEndianInputStream;
  * @author Ian McDonagh
  */
 public class ICODecoder {
-
 	private static final int PNG_MAGIC = 0x89504E47;
 	private static final int PNG_MAGIC_LE = 0x474E5089;
 	private static final int PNG_MAGIC2 = 0x0D0A1A0A;
 	private static final int PNG_MAGIC2_LE = 0x0A1A0A0D;
-
-	private ICODecoder() {
-	}
 
 	/**
 	 * Reads and decodes the given ICO file. Convenience method equivalent to

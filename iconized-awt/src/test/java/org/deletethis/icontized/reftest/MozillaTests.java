@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class Mozilla {
+public class MozillaTests {
     /** test if tests actually work! */
     @Test(expected = AssertionError.class)
     public void diff() throws IOException {
@@ -153,20 +153,20 @@ public class Mozilla {
     # Invalid compression value - detected when decoding the image data.
     == wrapper.html?invalid-compression.ico about:blank
      */
-    @Test(expected = IOException.class)
-    public void invalid1() throws IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void invalid1()  {
         IcoTestDecoder.loadIcons("/mozilla/ico-bmp-corrupted/invalid-bpp.ico");
     }
-    @Test(expected = IOException.class)
-    public void invalid2() throws IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void invalid2()  {
         IcoTestDecoder.loadIcons("/mozilla/ico-bmp-corrupted/invalid-compression.ico");
     }
-    @Test(expected = IOException.class)
-    public void invalid3() throws IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void invalid3()  {
         IcoTestDecoder.loadIcons("/mozilla/ico-bmp-corrupted/invalid-compression-RLE4.ico");
     }
-    @Test(expected = IOException.class)
-    public void invalid4() throws IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void invalid4() {
         IcoTestDecoder.loadIcons("/mozilla/ico-bmp-corrupted/invalid-compression-RLE8.ico");
     }
 
