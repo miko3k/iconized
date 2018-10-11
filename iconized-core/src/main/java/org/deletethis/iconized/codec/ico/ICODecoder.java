@@ -35,8 +35,6 @@ public class ICODecoder {
 	private static final int PNG_MAGIC2 = 0x0D0A1A0A;
 	private static final int PNG_MAGIC2_LE = 0x0A1A0A0D;
 
-	// private java.util.List<BufferedImage> img;
-
 	private ICODecoder() {
 	}
 
