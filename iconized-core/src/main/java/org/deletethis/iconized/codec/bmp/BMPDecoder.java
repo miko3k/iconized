@@ -7,10 +7,10 @@
 package org.deletethis.iconized.codec.bmp;
 
 import org.deletethis.iconized.Buffer;
+import org.deletethis.iconized.Colors;
+import org.deletethis.iconized.IndexedPixmap;
+import org.deletethis.iconized.Pixmap;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
-import java.awt.image.WritableRaster;
 
 /**
  * Decodes images in BMP format.
@@ -38,14 +38,6 @@ public class BMPDecoder {
     return (nibbles >> (4 * (1 - index))) & 0xF;
   }
 
-  private static void getColorTable(ColorEntry[] colorTable, byte[] ar, byte[] ag, byte[] ab) {
-    for (int i = 0; i < colorTable.length; i++) {
-      ar[i] = (byte) colorTable[i].bRed;
-      ag[i] = (byte) colorTable[i].bGreen;
-      ab[i] = (byte) colorTable[i].bBlue;
-    }
-  }
-
   /**
    /**
    * Reads the BMP info header structure from the given <tt>InputStream</tt>.
@@ -53,8 +45,7 @@ public class BMPDecoder {
    * @return the <tt>InfoHeader</tt> structure
    */
   public static InfoHeader readInfoHeader(Buffer lis, int infoSize){
-    InfoHeader infoHeader = new InfoHeader(lis, infoSize);
-    return infoHeader;
+    return new InfoHeader(lis, infoSize);
   }
   
   /**
@@ -65,21 +56,16 @@ public class BMPDecoder {
    * {@link #readInfoHeader readInfoHeader()}.
    * @return the decoded image read from the source input
    */
-  public static BufferedImage read(InfoHeader infoHeader, Buffer lis)  {
-    BufferedImage img = null;
-    
+  public static Pixmap read(InfoHeader infoHeader, Buffer lis)  {
     /* Color table (palette) */
-    
-    ColorEntry[] colorTable = null;
+    IndexedPixmap.Palette colorTable = null;
     
     //color table is only present for 1, 4 or 8 bit (indexed) images
     if (infoHeader.sBitCount <= 8) {
       colorTable = readColorTable(infoHeader, lis);
     }
     
-    img = read(infoHeader, lis, colorTable);
-    
-    return img;
+    return read(infoHeader, lis, colorTable);
   }
   
   /**
@@ -91,10 +77,10 @@ public class BMPDecoder {
    * @param lis the source input
    * @return the decoded image read from the source input
    */
-  public static BufferedImage read(InfoHeader infoHeader, Buffer lis,
-      ColorEntry[] colorTable) {
-    
-    BufferedImage img = null;
+  public static Pixmap read(InfoHeader infoHeader, Buffer lis,
+      IndexedPixmap.Palette colorTable) {
+
+    Pixmap img;
     
     //1-bit (monochrome) uncompressed
     if (infoHeader.sBitCount == 1 && infoHeader.iCompression == BMPConstants.BI_RGB) {
@@ -141,13 +127,18 @@ public class BMPDecoder {
    * @param lis the <tt>InputStream</tt> to read
    * @return the decoded image read from the source input
    */
-  private static ColorEntry[] readColorTable(InfoHeader infoHeader, Buffer lis) {
-    ColorEntry[] colorTable = new ColorEntry[infoHeader.iNumColors];
+  private static IndexedPixmap.Palette readColorTable(InfoHeader infoHeader, Buffer lis) {
+    int [] colors = new int[infoHeader.iNumColors];
+
     for (int i = 0; i < infoHeader.iNumColors; i++) {
-      ColorEntry ce = new ColorEntry(lis);
-      colorTable[i] = ce;
+      int bBlue = lis.int8();
+      int bGreen = lis.int8();
+      int bRed = lis.int8();
+      lis.skip(1);
+
+      colors[i] = Colors.create(bRed, bGreen, bBlue);
     }
-    return colorTable;
+    return new IndexedPixmap.Palette(colors);
   }
   
   /**
@@ -160,44 +151,26 @@ public class BMPDecoder {
    * must not be <tt>null</tt>.
    * @return the decoded image read from the source input
    */
-  private static BufferedImage read1(InfoHeader infoHeader,
+  private static Pixmap read1(InfoHeader infoHeader,
                                      Buffer lis,
-      ColorEntry[] colorTable)  {
+      IndexedPixmap.Palette colorTable)  {
     //1 bit per pixel or 8 pixels per byte
     //each pixel specifies the palette index
     
-    byte[] ar = new byte[colorTable.length];
-    byte[] ag = new byte[colorTable.length];
-    byte[] ab = new byte[colorTable.length];
-    
-    getColorTable(colorTable, ar, ag, ab);
-    
-    IndexColorModel icm = new IndexColorModel(
-        1, 2, ar, ag, ab
-        );
-    
+
     // Create indexed image
-    BufferedImage img = new BufferedImage(
+    IndexedPixmap img = new IndexedPixmap(
         infoHeader.iWidth, infoHeader.iHeight,
-        BufferedImage.TYPE_BYTE_BINARY,
-        icm
-        );
-    // We'll use the raster to set samples instead of RGB values.
-    // The SampleModel of an indexed image interprets samples as
-    // the index of the colour for a pixel, which is perfect for use here.
-    WritableRaster raster = img.getRaster();
-    
-    //padding    
-    
-    int dataBitsPerLine = infoHeader.iWidth;    
-    int bitsPerLine = dataBitsPerLine;
+            colorTable);
+
+    //padding
+
+    int bitsPerLine = infoHeader.iWidth;
     if (bitsPerLine % 32 != 0) {
       bitsPerLine = (bitsPerLine / 32 + 1) * 32;
     }
-    int padBits = bitsPerLine - dataBitsPerLine;
-    int padBytes = padBits / 8;
-    
-    int bytesPerLine = (int) (bitsPerLine / 8);
+
+    int bytesPerLine = bitsPerLine / 8;
     int[] line = new int[bytesPerLine];
     
     for (int y = infoHeader.iHeight - 1; y >= 0; y--) {
@@ -213,11 +186,11 @@ public class BMPDecoder {
         //int rgb = c[index];
         //img.setRGB(x, y, rgb);
         //set the sample (colour index) for the pixel
-        raster.setSample(x, y, 0, index);
+        img.setColor(x, y, index);
       }
     }
     
-    return img;
+    return img.getPixmap();
   }
   
   /**
@@ -230,37 +203,23 @@ public class BMPDecoder {
    * must not be <tt>null</tt>.
    * @return the decoded image read from the source input
    */
-  private static BufferedImage read4(InfoHeader infoHeader,
+  private static Pixmap read4(InfoHeader infoHeader,
                                      Buffer lis,
-      ColorEntry[] colorTable) {
+      IndexedPixmap.Palette colorTable) {
     
     // 2 pixels per byte or 4 bits per pixel.
     // Colour for each pixel specified by the color index in the pallette.
-    
-    byte[] ar = new byte[colorTable.length];
-    byte[] ag = new byte[colorTable.length];
-    byte[] ab = new byte[colorTable.length];
-    
-    getColorTable(colorTable, ar, ag, ab);
-    
-    IndexColorModel icm = new IndexColorModel(
-        4, infoHeader.iNumColors, ar, ag, ab
-        );
-    
-    BufferedImage img = new BufferedImage(
+
+    IndexedPixmap img = new IndexedPixmap(
         infoHeader.iWidth, infoHeader.iHeight,
-        BufferedImage.TYPE_BYTE_BINARY,
-        icm
-        );
-    
-    WritableRaster raster = img.getRaster();
-    
+        colorTable);
+
     //padding
     int bitsPerLine = infoHeader.iWidth * 4;
     if (bitsPerLine % 32 != 0) {
       bitsPerLine = (bitsPerLine / 32 + 1) * 32;
     }
-    int bytesPerLine = (int) (bitsPerLine / 8);
+    int bytesPerLine = bitsPerLine / 8;
     
     int[] line = new int[bytesPerLine];
     
@@ -278,11 +237,11 @@ public class BMPDecoder {
         int i = x % 2;
         int n = line[b];
         int index = getNibble(n, i);
-        raster.setSample(x, y, 0, index);
+        img.setColor(x, y, index);
       }
     }
     
-    return img;
+    return img.getPixmap();
   }
   
   /**
@@ -295,31 +254,17 @@ public class BMPDecoder {
    * must not be <tt>null</tt>.
    * @return the decoded image read from the source input
    */
-  private static BufferedImage read8(InfoHeader infoHeader,
+  private static Pixmap read8(InfoHeader infoHeader,
       Buffer lis,
-      ColorEntry[] colorTable) {
+      IndexedPixmap.Palette colorTable) {
     //1 byte per pixel
     //  color index 1 (index of color in palette)
     //lines padded to nearest 32bits
     //no alpha
-    
-    byte[] ar = new byte[colorTable.length];
-    byte[] ag = new byte[colorTable.length];
-    byte[] ab = new byte[colorTable.length];
-    
-    getColorTable(colorTable, ar, ag, ab);
-    
-    IndexColorModel icm = new IndexColorModel(
-        8, infoHeader.iNumColors, ar, ag, ab
-        );
-    
-    BufferedImage img = new BufferedImage(
+
+    IndexedPixmap img = new IndexedPixmap(
         infoHeader.iWidth, infoHeader.iHeight,
-        BufferedImage.TYPE_BYTE_INDEXED,
-        icm
-        );
-    
-    WritableRaster raster = img.getRaster();
+        colorTable);
     
       /*
       //create color pallette
@@ -346,13 +291,13 @@ public class BMPDecoder {
         //int clr = c[b];
         //img.setRGB(x, y, clr);
         //set sample (colour index) for pixel
-        raster.setSample(x, y , 0, b);
+        img.setColor(x, y, b);
       }
       
       lis.skip(padBytesPerLine);
     }
     
-    return img;
+    return img.getPixmap();
   }
   
   /**
@@ -362,7 +307,7 @@ public class BMPDecoder {
    * {@link #readInfoHeader readInfoHeader()}
    * @return the decoded image read from the source input
    */
-  private static BufferedImage read24(InfoHeader infoHeader,
+  private static Pixmap read24(InfoHeader infoHeader,
       Buffer lis) {
     //3 bytes per pixel
     //  blue 1
@@ -371,13 +316,9 @@ public class BMPDecoder {
     // lines padded to nearest 32 bits
     // no alpha
     
-    BufferedImage img = new BufferedImage(
-        infoHeader.iWidth, infoHeader.iHeight,
-        BufferedImage.TYPE_INT_RGB
-        );
-    
-    WritableRaster raster = img.getRaster();
-    
+    Pixmap img = new Pixmap(
+        infoHeader.iWidth, infoHeader.iHeight);
+
     //padding to nearest 32 bits
     int dataPerLine = infoHeader.iWidth * 3;
     int bytesPerLine = dataPerLine;
@@ -391,13 +332,8 @@ public class BMPDecoder {
         int b = lis.int8();
         int g = lis.int8();
         int r = lis.int8();
-        
-        //int c = 0x00000000 | (r << 16) | (g << 8) | (b);
-        //System.out.println(x + ","+y+"="+Integer.toHexString(c));
-        //img.setRGB(x, y, c);
-        raster.setSample(x, y, 0, r);
-        raster.setSample(x, y, 1, g);
-        raster.setSample(x, y, 2, b);
+
+        img.setRGB(x, y, Colors.create(r,g,b));
       }
       lis.skip(padBytesPerLine);
     }
@@ -413,7 +349,7 @@ public class BMPDecoder {
    * {@link #readInfoHeader readInfoHeader()}
    * @return the decoded image read from the source input
    */
-  private static BufferedImage read32(InfoHeader infoHeader,
+  private static Pixmap read32(InfoHeader infoHeader,
                                       Buffer lis) {
     //4 bytes per pixel
     // blue 1
@@ -421,25 +357,17 @@ public class BMPDecoder {
     // red 1
     // alpha 1
     //No padding since each pixel = 32 bits
-    
-    BufferedImage img = new BufferedImage(
-        infoHeader.iWidth, infoHeader.iHeight,
-        BufferedImage.TYPE_INT_ARGB
-        );
-    
-    WritableRaster rgb = img.getRaster();
-    WritableRaster alpha = img.getAlphaRaster();
-    
+
+    Pixmap img = new Pixmap(
+        infoHeader.iWidth, infoHeader.iHeight);
+
     for (int y = infoHeader.iHeight - 1; y >= 0; y--) {
       for (int x = 0; x < infoHeader.iWidth; x++) {
         int b = lis.int8();
         int g = lis.int8();
         int r = lis.int8();
         int a = lis.int8();
-        rgb.setSample(x, y, 0, r);
-        rgb.setSample(x, y, 1, g);
-        rgb.setSample(x, y, 2, b);
-        alpha.setSample(x, y, 0, a);
+        img.setRGB(x, y, Colors.create(r,g,b,a));
       }
     }
     

@@ -1,20 +1,25 @@
 package org.deletethis.iconized;
 
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
-import org.deletethis.iconized.codec.bmp.ColorEntry;
 import org.deletethis.iconized.codec.bmp.InfoHeader;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-
-public class BmpDecoder implements BufferDecoder<BufferedImage> {
+public class BmpDecoder implements BufferDecoder<Pixmap> {
     private BmpDecoder() {
     }
 
-    public static BmpDecoder INSTANCE = new BmpDecoder();
+    private static BmpDecoder INSTANCE = new BmpDecoder();
+
+    public static BmpDecoder getInstance() {
+        return INSTANCE;
+    }
+
+    private static final IndexedPixmap.Palette andColorTable = new IndexedPixmap.Palette(new int[]{
+            0xFFFFFFFF,
+            0x00000000
+    });
 
     @Override
-    public BufferedImage decodeImage(Buffer in, Params params) {
+    public Pixmap decodeImage(Buffer in, Params params) {
         int info = in.int32();
         if (info != BufferDecoder.BMP_MAGIC) {
             throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(info));
@@ -22,20 +27,20 @@ public class BmpDecoder implements BufferDecoder<BufferedImage> {
 
         // read XOR bitmap
         // BMPDecoder bmp = new BMPDecoder(is);
-        InfoHeader infoHeader = null;
+        InfoHeader infoHeader;
         infoHeader = BMPDecoder.readInfoHeader(in, info);
         InfoHeader andHeader = new InfoHeader(infoHeader);
-        andHeader.iHeight = (int) (infoHeader.iHeight / 2);
+        andHeader.iHeight = infoHeader.iHeight / 2;
+        andHeader.sBitCount = 1;
+        andHeader.iNumColors = 2;
         InfoHeader xorHeader = new InfoHeader(infoHeader);
         xorHeader.iHeight = andHeader.iHeight;
 
-        andHeader.sBitCount = 1;
-        andHeader.iNumColors = 2;
 
         // for now, just read all the raster data (xor + and)
         // and store as separate images
 
-        BufferedImage xor = BMPDecoder.read(xorHeader, in);
+        Pixmap xor = BMPDecoder.read(xorHeader, in);
         // If we want to be sure we've decoded the XOR mask
         // correctly,
         // we can write it out as a PNG to a temp file here.
@@ -49,12 +54,8 @@ public class BmpDecoder implements BufferDecoder<BufferedImage> {
         // Or just add it to the output list:
         // img.add(xor);
 
-        BufferedImage img = new BufferedImage(xorHeader.iWidth,
-                xorHeader.iHeight, BufferedImage.TYPE_INT_ARGB);
-
-        ColorEntry[] andColorTable = new ColorEntry[]{
-                new ColorEntry(255, 255, 255, 255),
-                new ColorEntry(0, 0, 0, 0)};
+        Pixmap img = new Pixmap(xorHeader.iWidth,
+                xorHeader.iHeight);
 
         if (infoHeader.sBitCount == 32) {
             // transparency from alpha
@@ -74,73 +75,20 @@ public class BmpDecoder implements BufferDecoder<BufferedImage> {
             if (!params.isLastImage()) {
                 in.skip(skip);
             }
-
-            // //read AND bitmap
-            // BufferedImage and = BMPDecoder.read(andHeader, in,
-            // andColorTable);
-            // this.img.add(and);
-
-            WritableRaster srgb = xor.getRaster();
-            WritableRaster salpha = xor.getAlphaRaster();
-            WritableRaster rgb = img.getRaster();
-            WritableRaster alpha = img.getAlphaRaster();
-
-            for (int y = xorHeader.iHeight - 1; y >= 0; y--) {
-                for (int x = 0; x < xorHeader.iWidth; x++) {
-                    int r = srgb.getSample(x, y, 0);
-                    int g = srgb.getSample(x, y, 1);
-                    int b = srgb.getSample(x, y, 2);
-                    int a = salpha.getSample(x, y, 0);
-                    rgb.setSample(x, y, 0, r);
-                    rgb.setSample(x, y, 1, g);
-                    rgb.setSample(x, y, 2, b);
-                    alpha.setSample(x, y, 0, a);
-                }
-            }
-
+            // nothing needs to be done at this point
         } else {
-            BufferedImage and = BMPDecoder.read(andHeader, in,
+            Pixmap and = BMPDecoder.read(andHeader, in,
                     andColorTable);
-            // img.add(and);
-
-            // copy rgb
-            WritableRaster srgb = xor.getRaster();
-            WritableRaster rgb = img.getRaster();
-            // copy alpha
-            WritableRaster alpha = img.getAlphaRaster();
-            WritableRaster salpha = and.getRaster();
 
             for (int y = 0; y < xorHeader.iHeight; y++) {
                 for (int x = 0; x < xorHeader.iWidth; x++) {
-                    int r, g, b;
                     int c = xor.getRGB(x, y);
-                    r = (c >> 16) & 0xFF;
-                    g = (c >> 8) & 0xFF;
-                    b = (c) & 0xFF;
-                    // red
-                    rgb.setSample(x, y, 0, r);
-                    // green
-                    rgb.setSample(x, y, 1, g);
-                    // blue
-                    rgb.setSample(x, y, 2, b);
-                    // System.out.println(x+","+y+"="+Integer.toHexString(c));
-                    // img.setRGB(x, y, c);
-
-                    // alpha
                     int a = and.getRGB(x, y);
-                    alpha.setSample(x, y, 0, a);
+                    c = Colors.setAlpha(c, Colors.getAlpha(a));
+                    xor.setRGB(x, y, c);
                 }
             }
         }
-        return img;
-            /*
-            Pixmap result = new Pixmap(img.getWidth(), img.getHeight());
-            for (int j = 0; j < img.getHeight(); j++) {
-                for (int i = 0; i < img.getWidth(); i++) {
-                    result.setRGB(i, j, img.getRGB(i, j));
-                }
-            }
-            return result;
-            */
+        return xor;
     }
 }

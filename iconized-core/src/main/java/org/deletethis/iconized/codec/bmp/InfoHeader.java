@@ -78,15 +78,8 @@ public class InfoHeader {
    * @param in the source input
    */
   public InfoHeader(Buffer in, int infoSize) {
-    init(in, infoSize);
-  }
-  
-  /**
-   * @since 0.6
-   */
-  private void init(Buffer in, int infoSize)  {
     this.iSize = infoSize;
-    
+
     //Width
     iWidth = in.int32();
     //Height
@@ -95,10 +88,10 @@ public class InfoHeader {
     sPlanes = (short)in.int16();
     //Bit count
     sBitCount = (short)in.int16();
-    
+
     //calculate NumColors
     iNumColors = (int) Math.pow(2, sBitCount);
-    
+
     //Compression
     iCompression = in.int32();
     //Image size - compressed size of image or 0 if Compression = 0
@@ -112,7 +105,7 @@ public class InfoHeader {
     //Colors important - number of important colors 0 = all
     iColorsImportant = in.int32();
   }
-  
+
 
   /**
    * Creates a copy of the source <tt>InfoHeader</tt>.

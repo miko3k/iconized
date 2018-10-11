@@ -4,46 +4,39 @@ package org.deletethis.iconized;
  * Write only version of pixmap with indexed color model
  */
 public class IndexedPixmap {
-    private final int width, height;
-    private int [] data;
+    public static class Palette {
+        private final int [] colors;
 
-    public IndexedPixmap(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.data = new int[width*height];
+        public Palette(int[] colors) {
+            this.colors = colors;
+        }
+
+        public int getColor(int color) {
+            return colors[color];
+        }
+    }
+
+    private final Palette palette;
+    private final Pixmap pixmap;
+
+    public IndexedPixmap(int width, int height, Palette palette) {
+        this.palette = palette;
+        this.pixmap = new Pixmap(width, height);
     }
 
     public int getWidth() {
-        return width;
+        return pixmap.getWidth();
     }
 
     public int getHeight() {
-        return height;
+        return pixmap.getHeight();
     }
 
-    public int[] getData() {
-        return data;
+    public void setColor(int x, int y, int color) {
+        pixmap.setRGB(x, y, palette.getColor(color));
     }
 
-    public int getRGB(int x, int y) {
-        int w = width;
-        if(x < 0 || x >= w)
-            throw new IllegalArgumentException("not withing the buffer");
-
-        if(y < 0 || y >= height)
-            throw new IllegalArgumentException("not withing the buffer");
-
-        return data[w*y+x];
-    }
-
-    public void setRGB(int x, int y, int rgb) {
-        int w = width;
-        if(x < 0 || x >= w)
-            throw new IllegalArgumentException("not withing the buffer");
-
-        if(y < 0 || y >= height)
-            throw new IllegalArgumentException("not withing the buffer");
-
-        data[w*y+x] = rgb;
+    public Pixmap getPixmap() {
+        return pixmap;
     }
 }
