@@ -14,8 +14,6 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import net.sf.image4j.codec.bmp.*;
-import net.sf.image4j.io.*;
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
 import org.deletethis.iconized.codec.bmp.ColorEntry;
 import org.deletethis.iconized.codec.bmp.InfoHeader;
@@ -314,8 +312,9 @@ public class ICODecoder {
 					}
 
 					IconEntry e = entries[i];
-					int size = e.iSizeInBytes - 8;
-					byte[] pngData = new byte[size];
+					int size = e.iSizeInBytes;
+					// maybe ignore size and just read until IEND? Mozilla testsuite kinda expects that...
+					byte[] pngData = new byte[size-8];
 					/* int count = */in.readFully(pngData);
 					// if (count != pngData.length) {
 					// throw new
@@ -334,6 +333,7 @@ public class ICODecoder {
 							.createImageInputStream(bin);
 					javax.imageio.ImageReader reader = getPNGImageReader();
 					reader.setInput(input);
+
 					java.awt.image.BufferedImage img = reader.read(0);
 
 					// create ICOImage

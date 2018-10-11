@@ -6,12 +6,14 @@
 
 package org.deletethis.iconized.codec.bmp;
 
-import java.awt.image.*;
-import java.io.*;
-
-import net.sf.image4j.io.*;
 import org.deletethis.iconized.io.CountingInputStream;
 import org.deletethis.iconized.io.LittleEndianInputStream;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.IndexColorModel;
+import java.awt.image.WritableRaster;
+import java.io.BufferedInputStream;
+import java.io.IOException;
 
 /**
  * Decodes images in BMP format.

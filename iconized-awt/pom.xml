@@ -12,4 +12,12 @@
 
     <artifactId>iconized-awt</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.deletethis.iconized</groupId>
+            <artifactId>iconized-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
