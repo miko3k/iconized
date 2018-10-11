@@ -6,13 +6,11 @@
 
 package org.deletethis.iconized.codec.bmp;
 
-import org.deletethis.iconized.io.CountingInputStream;
 import org.deletethis.iconized.io.LittleEndianInputStream;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 
 /**
@@ -20,46 +18,7 @@ import java.io.IOException;
  * @author Ian McDonagh
  */
 public class BMPDecoder {
-  
-  private BufferedImage img;
-  private InfoHeader infoHeader;
-  
-  /** Creates a new instance of BMPDecoder and reads the BMP data from the source.
-   * @param in the source <tt>InputStream</tt> from which to read the BMP data
-   * @throws java.io.IOException if an error occurs
-   */
-  public BMPDecoder(java.io.InputStream in) throws IOException {
-    LittleEndianInputStream lis = new LittleEndianInputStream(new CountingInputStream(in));
-            
-    /* header [14] */
-    
-    //signature "BM" [2]
-    byte[] bsignature = new byte[2];
-    lis.read(bsignature);
-    String signature = new String(bsignature, "UTF-8");
-    
-    if (!signature.equals("BM")) {
-      throw new IOException("Invalid signature '"+signature+"' for BMP format");
-    }
-    
-    //file size [4]
-    int fileSize = lis.readIntLE();
-    
-    //reserved = 0 [4]
-    int reserved = lis.readIntLE();
-    
-    //DataOffset [4] file offset to raster data
-    int dataOffset = lis.readIntLE();
-    
-    /* info header [40] */
-    
-    infoHeader = readInfoHeader(lis);
-    
-    /* Color table and Raster data */
-    
-    img = read(infoHeader, lis);
-  }
-  
+
   /**
    * Retrieves a bit from the lowest order byte of the given integer.
    * @param bits the source integer, treated as an unsigned byte
@@ -79,24 +38,7 @@ public class BMPDecoder {
   private static int getNibble(int nibbles, int index) {
     return (nibbles >> (4 * (1 - index))) & 0xF;
   }
-  
-  /**
-   * The <tt>InfoHeader</tt> structure, which provides information about the BMP data.
-   * @return the <tt>InfoHeader</tt> structure that was read from the source data when this <tt>BMPDecoder</tt>
-   * was created.
-   */  
-  public InfoHeader getInfoHeader() {
-    return infoHeader;
-  }
-  
-  /**
-   * The decoded image read from the source input.
-   * @return the <tt>BufferedImage</tt> representing the BMP image.
-   */
-  public BufferedImage getBufferedImage() {
-    return img;
-  }
-  
+
   private static void getColorTable(ColorEntry[] colorTable, byte[] ar, byte[] ag, byte[] ab) {
     for (int i = 0; i < colorTable.length; i++) {
       ar[i] = (byte) colorTable[i].bRed;
@@ -104,20 +46,13 @@ public class BMPDecoder {
       ab[i] = (byte) colorTable[i].bBlue;
     }
   }
-  
+
   /**
+   /**
    * Reads the BMP info header structure from the given <tt>InputStream</tt>.
    * @param lis the <tt>InputStream</tt> to read
    * @return the <tt>InfoHeader</tt> structure
    * @throws java.io.IOException if an error occurred
-   */
-  public static InfoHeader readInfoHeader(LittleEndianInputStream lis) throws IOException {
-    InfoHeader infoHeader = new InfoHeader(lis);
-    return infoHeader;
-  }
-  
-  /**
-   * @since 0.6
    */
   public static InfoHeader readInfoHeader(LittleEndianInputStream lis, int infoSize) throws IOException {
     InfoHeader infoHeader = new InfoHeader(lis, infoSize);
@@ -129,7 +64,7 @@ public class BMPDecoder {
    * contained in the <tt>InfoHeader</tt>.
    * @param lis the source input
    * @param infoHeader an <tt>InfoHeader</tt> that was read by a call to 
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}.
+   * {@link #readInfoHeader(LittleEndianInputStream,int) readInfoHeader()}.
    * @return the decoded image read from the source input
    * @throws java.io.IOException if an error occurs
    */
@@ -155,7 +90,7 @@ public class BMPDecoder {
    * contained in the <tt>InfoHeader</tt>.
    * @param colorTable <tt>ColorEntry</tt> array containing palette
    * @param infoHeader an <tt>InfoHeader</tt> that was read by a call to 
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}.
+   * {@link #readInfoHeader(LittleEndianInputStream,int) readInfoHeader()}.
    * @param lis the source input
    * @return the decoded image read from the source input
    * @throws java.io.IOException if any error occurs
@@ -206,7 +141,7 @@ public class BMPDecoder {
    * Reads the <tt>ColorEntry</tt> table from the given <tt>InputStream</tt> using
    * the information contained in the given <tt>infoHeader</tt>.
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}
+   * {@link #readInfoHeader readInfoHeader()}
    * @param lis the <tt>InputStream</tt> to read
    * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
@@ -224,7 +159,7 @@ public class BMPDecoder {
    * Reads 1-bit uncompressed bitmap raster data, which may be monochrome depending on the
    * palette entries in <tt>colorTable</tt>.
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}
+   * {@link #readInfoHeader readInfoHeader()}
    * @param lis the source input
    * @param colorTable <tt>ColorEntry</tt> array specifying the palette, which
    * must not be <tt>null</tt>.
@@ -295,7 +230,7 @@ public class BMPDecoder {
    * Reads 4-bit uncompressed bitmap raster data, which is interpreted based on the colours
    * specified in the palette.
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}
+   * {@link #readInfoHeader readInfoHeader()}
    * @param lis the source input
    * @param colorTable <tt>ColorEntry</tt> array specifying the palette, which
    * must not be <tt>null</tt>.
@@ -361,7 +296,7 @@ public class BMPDecoder {
    * Reads 8-bit uncompressed bitmap raster data, which is interpreted based on the colours
    * specified in the palette.
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}
+   * {@link #readInfoHeader readInfoHeader()}
    * @param lis the source input
    * @param colorTable <tt>ColorEntry</tt> array specifying the palette, which
    * must not be <tt>null</tt>.
@@ -432,7 +367,7 @@ public class BMPDecoder {
    * Reads 24-bit uncompressed bitmap raster data.
    * @param lis the source input
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}
+   * {@link #readInfoHeader readInfoHeader()}
    * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
@@ -484,7 +419,7 @@ public class BMPDecoder {
    * Reads 32-bit uncompressed bitmap raster data, with transparency.
    * @param lis the source input
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
-   * {@link #readInfoHeader(LittleEndianInputStream) readInfoHeader()}
+   * {@link #readInfoHeader readInfoHeader()}
    * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
@@ -519,33 +454,5 @@ public class BMPDecoder {
     }
     
     return img;
-  }
-  
-  /**
-   * Reads and decodes BMP data from the source file.
-   * @param file the source file
-   * @throws java.io.IOException if an error occurs
-   * @return the decoded image read from the source file
-   */
-  public static BufferedImage read(java.io.File file) throws IOException {
-	  java.io.FileInputStream fin = new java.io.FileInputStream(file);
-	  try {
-		  return read(new BufferedInputStream(fin));
-	  } finally {
-		  try {
-			  fin.close();
-		  } catch (IOException ex) { }
-	  }
-  }
-  
-  /**
-   * Reads and decodes BMP data from the source input.
-   * @param in the source input
-   * @throws java.io.IOException if an error occurs
-   * @return the decoded image read from the source file
-   */
-  public static BufferedImage read(java.io.InputStream in) throws IOException {
-    BMPDecoder d = new BMPDecoder(in);
-    return d.getBufferedImage();
   }
 }

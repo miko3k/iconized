@@ -10,7 +10,7 @@
 package org.deletethis.iconized.codec.bmp;
 
 import java.io.IOException;
-import org.deletethis.iconized.io.LittleEndianOutputStream;
+
 import org.deletethis.iconized.io.LittleEndianInputStream;
 
 /**
@@ -178,37 +178,4 @@ public class InfoHeader {
         
   }
   
-  /**
-   * Writes the <tt>InfoHeader</tt> structure to output
-   * @param out the output to which the structure will be written
-   * @throws java.io.IOException if an error occurs
-   */ 
-  public void write(LittleEndianOutputStream out) throws IOException {
-      //Size of InfoHeader structure = 40
-    out.writeIntLE(iSize);
-    //Width
-    out.writeIntLE(iWidth);
-    //Height
-    out.writeIntLE(iHeight);
-    //Planes (=1)
-    out.writeShortLE(sPlanes);
-    //Bit count
-    out.writeShortLE(sBitCount);
-    
-    //caculate NumColors
-    //iNumColors = (int) Math.pow(2, sBitCount);
-    
-    //Compression
-    out.writeIntLE(iCompression);
-    //Image size - compressed size of image or 0 if Compression = 0
-    out.writeIntLE(iImageSize);
-    //horizontal resolution pixels/meter
-    out.writeIntLE(iXpixelsPerM);
-    //vertical resolution pixels/meter
-    out.writeIntLE(iYpixelsPerM);
-    //Colors used - number of colors actually used
-    out.writeIntLE(iColorsUsed);
-    //Colors important - number of important colors 0 = all
-    out.writeIntLE(iColorsImportant);
-  }
 }

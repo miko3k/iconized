@@ -3,7 +3,6 @@ package org.deletethis.iconized;
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
 import org.deletethis.iconized.codec.bmp.ColorEntry;
 import org.deletethis.iconized.codec.bmp.InfoHeader;
-import org.deletethis.iconized.io.CountingInputStream;
 import org.deletethis.iconized.io.LittleEndianInputStream;
 
 import java.awt.image.BufferedImage;
@@ -19,7 +18,7 @@ public class BmpDecoder implements BufferDecoder<BufferedImage> {
     @Override
     public BufferedImage decodeImage(Buffer buffer, Params params) {
         try {
-            LittleEndianInputStream in = new LittleEndianInputStream(new CountingInputStream(buffer.toInputStream()));
+            LittleEndianInputStream in = new LittleEndianInputStream(buffer.toInputStream());
 
             int info = in.readIntLE();
             if (info != BufferDecoder.BMP_MAGIC) {
