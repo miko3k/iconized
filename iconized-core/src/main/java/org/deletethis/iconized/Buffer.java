@@ -34,7 +34,7 @@ public class Buffer {
     }
 
     public void skip(int skip) {
-        if(pos+skip >= size)
+        if(pos+skip > size)
             throw new IllegalArgumentException("Not enough data");
 
         pos += skip;
@@ -63,7 +63,7 @@ public class Buffer {
         if(index >= size) {
             throw new IllegalArgumentException("offset outside!");
         }
-        return data[index+offset];
+        return data[index+offset] & 0xFF;
     }
 
     public int int16(int index) {
@@ -92,7 +92,9 @@ public class Buffer {
         return new ByteArrayInputStream(data, offset, size);
     }
 
-    public int getSize() {
+    public int size() {
         return size;
     }
+
+    public int remaining() { return size-offset; }
 }

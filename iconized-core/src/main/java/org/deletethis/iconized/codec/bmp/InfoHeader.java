@@ -9,9 +9,9 @@
 
 package org.deletethis.iconized.codec.bmp;
 
-import java.io.IOException;
+import org.deletethis.iconized.Buffer;
 
-import org.deletethis.iconized.io.LittleEndianInputStream;
+import java.io.IOException;
 
 /**
  * Represents a bitmap <tt>InfoHeader</tt> structure, which provides header information.
@@ -80,9 +80,9 @@ public class InfoHeader {
    * @param in the source input
    * @throws java.io.IOException if an error occurs
    */
-  public InfoHeader(LittleEndianInputStream in) throws IOException {
+  public InfoHeader(Buffer in) throws IOException {
     //Size of InfoHeader structure = 40
-    iSize = in.readIntLE();
+    iSize = in.int32();
     
     init(in, iSize);
   }
@@ -90,40 +90,40 @@ public class InfoHeader {
   /**
    * @since 0.6
    */
-  public InfoHeader(LittleEndianInputStream in, int infoSize) throws IOException {
+  public InfoHeader(Buffer in, int infoSize) throws IOException {
     init(in, infoSize);
   }
   
   /**
    * @since 0.6
    */
-  protected void init(LittleEndianInputStream in, int infoSize) throws IOException {
+  protected void init(Buffer in, int infoSize) throws IOException {
     this.iSize = infoSize;
     
     //Width
-    iWidth = in.readIntLE();
+    iWidth = in.int32();
     //Height
-    iHeight = in.readIntLE();
+    iHeight = in.int32();
     //Planes (=1)
-    sPlanes = in.readShortLE();
+    sPlanes = (short)in.int16();
     //Bit count
-    sBitCount = in.readShortLE();
+    sBitCount = (short)in.int16();
     
     //calculate NumColors
     iNumColors = (int) Math.pow(2, sBitCount);
     
     //Compression
-    iCompression = in.readIntLE();
+    iCompression = in.int32();
     //Image size - compressed size of image or 0 if Compression = 0
-    iImageSize = in.readIntLE();
+    iImageSize = in.int32();
     //horizontal resolution pixels/meter
-    iXpixelsPerM = in.readIntLE();
+    iXpixelsPerM = in.int32();
     //vertical resolution pixels/meter
-    iYpixelsPerM = in.readIntLE();
+    iYpixelsPerM = in.int32();
     //Colors used - number of colors actually used
-    iColorsUsed = in.readIntLE();
+    iColorsUsed = in.int32();
     //Colors important - number of important colors 0 = all
-    iColorsImportant = in.readIntLE();
+    iColorsImportant = in.int32();
   }
   
   /**

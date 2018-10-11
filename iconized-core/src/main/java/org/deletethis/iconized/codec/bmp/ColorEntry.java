@@ -9,7 +9,7 @@
 
 package org.deletethis.iconized.codec.bmp;
 
-import org.deletethis.iconized.io.LittleEndianInputStream;
+import org.deletethis.iconized.Buffer;
 
 import java.io.IOException;
 
@@ -41,21 +41,11 @@ public class ColorEntry {
    * @param in the source input
    * @throws java.io.IOException if an error occurs
    */
-  public ColorEntry(LittleEndianInputStream in) throws IOException {
-    bBlue = in.readUnsignedByte();
-    bGreen = in.readUnsignedByte();
-    bRed = in.readUnsignedByte();
-    bReserved = in.readUnsignedByte();
-  }
-  
-  /**
-   * Creates a colour entry with colour components initialized to <tt>0</tt>.
-   */
-  public ColorEntry() {
-    bBlue = 0;
-    bGreen = 0;
-    bRed = 0;
-    bReserved = 0;
+  public ColorEntry(Buffer in) throws IOException {
+    bBlue = in.int8();
+    bGreen = in.int8();
+    bRed = in.int8();
+    bReserved = in.int8();
   }
   
   /**

@@ -3,7 +3,6 @@ package org.deletethis.iconized;
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
 import org.deletethis.iconized.codec.bmp.ColorEntry;
 import org.deletethis.iconized.codec.bmp.InfoHeader;
-import org.deletethis.iconized.io.LittleEndianInputStream;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -16,11 +15,9 @@ public class BmpDecoder implements BufferDecoder<BufferedImage> {
     public static BmpDecoder INSTANCE = new BmpDecoder();
 
     @Override
-    public BufferedImage decodeImage(Buffer buffer, Params params) {
+    public BufferedImage decodeImage(Buffer in, Params params) {
         try {
-            LittleEndianInputStream in = new LittleEndianInputStream(buffer.toInputStream());
-
-            int info = in.readIntLE();
+            int info = in.int32();
             if (info != BufferDecoder.BMP_MAGIC) {
                 throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(info));
             }
@@ -67,18 +64,18 @@ public class BmpDecoder implements BufferDecoder<BufferedImage> {
                 int infoHeaderSize = infoHeader.iSize;
                 // data size = w * h * 4
                 int dataSize = xorHeader.iWidth * xorHeader.iHeight * 4;
-                int skip = buffer.getSize() - infoHeaderSize - dataSize;
+                int skip = in.size() - infoHeaderSize - dataSize;
 
                 // ignore AND bitmap since alpha channel stores
                 // transparency
 
-                if (in.skip(skip, false) < skip && params.isLastImage()) {
-                    throw new EOFException("Unexpected end of input");
-                }
                 // If we skipped less bytes than expected, the AND mask
                 // is probably badly formatted.
                 // If we're at the last/only entry in the file, silently
                 // ignore and continue processing...
+                if(!params.isLastImage()) {
+                    in.skip(skip);
+                }
 
                 // //read AND bitmap
                 // BufferedImage and = BMPDecoder.read(andHeader, in,
