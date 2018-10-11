@@ -548,35 +548,4 @@ public class BMPDecoder {
     BMPDecoder d = new BMPDecoder(in);
     return d.getBufferedImage();
   }
-  
-  /**
-   * Reads and decodes BMP data from the source file, together with metadata.
-   * @param file the source file
-   * @throws java.io.IOException if an error occurs
-   * @return the decoded image read from the source file
-   * @since 0.7
-   */
-  public static BMPImage readExt(java.io.File file) throws IOException {
-	  java.io.FileInputStream fin = new java.io.FileInputStream(file);
-     try {
-    	 return readExt(new BufferedInputStream(fin));    
-     } finally {
-    	 try {
-    		 fin.close();
-    	 } catch (IOException ex) { }
-     }
-  }
-  
-  /**
-   * Reads and decodes BMP data from the source input, together with metadata.
-   * @param in the source input
-   * @throws java.io.IOException if an error occurs
-   * @return the decoded image read from the source file
-   * @since 0.7
-   */
-  public static BMPImage readExt(java.io.InputStream in) throws IOException {
-    BMPDecoder d = new BMPDecoder(in);
-    BMPImage ret = new BMPImage(d.getBufferedImage(), d.getInfoHeader());
-    return ret;
-  }
 }
