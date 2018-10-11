@@ -11,7 +11,6 @@ import org.deletethis.iconized.Buffer;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
-import java.io.IOException;
 
 /**
  * Decodes images in BMP format.
@@ -52,9 +51,8 @@ public class BMPDecoder {
    * Reads the BMP info header structure from the given <tt>InputStream</tt>.
    * @param lis the <tt>InputStream</tt> to read
    * @return the <tt>InfoHeader</tt> structure
-   * @throws java.io.IOException if an error occurred
    */
-  public static InfoHeader readInfoHeader(Buffer lis, int infoSize) throws IOException {
+  public static InfoHeader readInfoHeader(Buffer lis, int infoSize){
     InfoHeader infoHeader = new InfoHeader(lis, infoSize);
     return infoHeader;
   }
@@ -66,9 +64,8 @@ public class BMPDecoder {
    * @param infoHeader an <tt>InfoHeader</tt> that was read by a call to 
    * {@link #readInfoHeader readInfoHeader()}.
    * @return the decoded image read from the source input
-   * @throws java.io.IOException if an error occurs
    */
-  public static BufferedImage read(InfoHeader infoHeader, Buffer lis) throws IOException {
+  public static BufferedImage read(InfoHeader infoHeader, Buffer lis)  {
     BufferedImage img = null;
     
     /* Color table (palette) */
@@ -93,10 +90,9 @@ public class BMPDecoder {
    * {@link #readInfoHeader readInfoHeader()}.
    * @param lis the source input
    * @return the decoded image read from the source input
-   * @throws java.io.IOException if any error occurs
    */
   public static BufferedImage read(InfoHeader infoHeader, Buffer lis,
-      ColorEntry[] colorTable) throws IOException {
+      ColorEntry[] colorTable) {
     
     BufferedImage img = null;
     
@@ -130,7 +126,7 @@ public class BMPDecoder {
       img = read32(infoHeader, lis);
       
     } else {
-      throw new IOException("Unrecognized bitmap format: bit count="+infoHeader.sBitCount+", compression="+
+      throw new IllegalArgumentException("Unrecognized bitmap format: bit count="+infoHeader.sBitCount+", compression="+
           infoHeader.iCompression);
     }
     
@@ -143,10 +139,9 @@ public class BMPDecoder {
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
    * {@link #readInfoHeader readInfoHeader()}
    * @param lis the <tt>InputStream</tt> to read
-   * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
-  private static ColorEntry[] readColorTable(InfoHeader infoHeader, Buffer lis) throws IOException {
+  private static ColorEntry[] readColorTable(InfoHeader infoHeader, Buffer lis) {
     ColorEntry[] colorTable = new ColorEntry[infoHeader.iNumColors];
     for (int i = 0; i < infoHeader.iNumColors; i++) {
       ColorEntry ce = new ColorEntry(lis);
@@ -163,12 +158,11 @@ public class BMPDecoder {
    * @param lis the source input
    * @param colorTable <tt>ColorEntry</tt> array specifying the palette, which
    * must not be <tt>null</tt>.
-   * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
   private static BufferedImage read1(InfoHeader infoHeader,
                                      Buffer lis,
-      ColorEntry[] colorTable) throws IOException {
+      ColorEntry[] colorTable)  {
     //1 bit per pixel or 8 pixels per byte
     //each pixel specifies the palette index
     
@@ -234,12 +228,11 @@ public class BMPDecoder {
    * @param lis the source input
    * @param colorTable <tt>ColorEntry</tt> array specifying the palette, which
    * must not be <tt>null</tt>.
-   * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
   private static BufferedImage read4(InfoHeader infoHeader,
                                      Buffer lis,
-      ColorEntry[] colorTable) throws IOException {
+      ColorEntry[] colorTable) {
     
     // 2 pixels per byte or 4 bits per pixel.
     // Colour for each pixel specified by the color index in the pallette.
@@ -300,12 +293,11 @@ public class BMPDecoder {
    * @param lis the source input
    * @param colorTable <tt>ColorEntry</tt> array specifying the palette, which
    * must not be <tt>null</tt>.
-   * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
   private static BufferedImage read8(InfoHeader infoHeader,
       Buffer lis,
-      ColorEntry[] colorTable) throws IOException {
+      ColorEntry[] colorTable) {
     //1 byte per pixel
     //  color index 1 (index of color in palette)
     //lines padded to nearest 32bits
@@ -368,11 +360,10 @@ public class BMPDecoder {
    * @param lis the source input
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
    * {@link #readInfoHeader readInfoHeader()}
-   * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
   private static BufferedImage read24(InfoHeader infoHeader,
-      Buffer lis) throws IOException {
+      Buffer lis) {
     //3 bytes per pixel
     //  blue 1
     //  green 1
@@ -420,11 +411,10 @@ public class BMPDecoder {
    * @param lis the source input
    * @param infoHeader the <tt>InfoHeader</tt> structure, which was read using
    * {@link #readInfoHeader readInfoHeader()}
-   * @throws java.io.IOException if an error occurs
    * @return the decoded image read from the source input
    */
   private static BufferedImage read32(InfoHeader infoHeader,
-                                      Buffer lis) throws IOException {
+                                      Buffer lis) {
     //4 bytes per pixel
     // blue 1
     // green 1

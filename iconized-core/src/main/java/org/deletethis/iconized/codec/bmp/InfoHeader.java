@@ -11,8 +11,6 @@ package org.deletethis.iconized.codec.bmp;
 
 import org.deletethis.iconized.Buffer;
 
-import java.io.IOException;
-
 /**
  * Represents a bitmap <tt>InfoHeader</tt> structure, which provides header information.
  * @author Ian McDonagh
@@ -34,7 +32,7 @@ public class InfoHeader {
   /**
    * The number of planes, which should always be <tt>1</tt>.
    */
-  public short sPlanes;
+  private short sPlanes;
   /**
    * The bit count, which represents the colour depth (bits per pixel).
    * This should be either <tt>1</tt>, <tt>4</tt>, <tt>8</tt>, <tt>24</tt> or <tt>32</tt>.
@@ -52,52 +50,41 @@ public class InfoHeader {
   /**
    * The compressed size of the image in bytes, or <tt>0</tt> if <tt>iCompression</tt> is <tt>0</tt>.
    */
-  public int iImageSize;
+  private int iImageSize;
   /**
    * Horizontal resolution in pixels/m.
    */
-  public int iXpixelsPerM;
+  private int iXpixelsPerM;
   /**
    * Vertical resolution in pixels/m.
    */
-  public int iYpixelsPerM;
+  private int iYpixelsPerM;
   /**
    * Number of colours actually used in the bitmap.
    */
-  public int iColorsUsed;
+  private int iColorsUsed;
   /**
    * Number of important colours (<tt>0</tt> = all).
    */
-  public int iColorsImportant;
+  private int iColorsImportant;
   
   /**
    * Calculated number of colours, based on the colour depth specified by {@link #sBitCount sBitCount}.
    */
   public int iNumColors;
   
-  /** 
+  /**
    * Creates an <tt>InfoHeader</tt> structure from the source input.
    * @param in the source input
-   * @throws java.io.IOException if an error occurs
    */
-  public InfoHeader(Buffer in) throws IOException {
-    //Size of InfoHeader structure = 40
-    iSize = in.int32();
-    
-    init(in, iSize);
-  }
-  
-  /**
-   * @since 0.6
-   */
-  public InfoHeader(Buffer in, int infoSize) throws IOException {
+  public InfoHeader(Buffer in, int infoSize) {
     init(in, infoSize);
   }
   
   /**
    * @since 0.6
    */
-  protected void init(Buffer in, int infoSize) throws IOException {
+  private void init(Buffer in, int infoSize)  {
     this.iSize = infoSize;
     
     //Width
@@ -126,38 +113,7 @@ public class InfoHeader {
     iColorsImportant = in.int32();
   }
   
-  /**
-   * Creates an <tt>InfoHeader</tt> with default values.
-   */
-  public InfoHeader() {
-    //Size of InfoHeader structure = 40
-    iSize = 40;
-    //Width
-    iWidth = 0;
-    //Height
-    iHeight = 0;
-    //Planes (=1)
-    sPlanes = 1;
-    //Bit count
-    sBitCount = 0;
-    
-    //caculate NumColors
-    iNumColors = 0;
-    
-    //Compression
-    iCompression = BMPConstants.BI_RGB;
-    //Image size - compressed size of image or 0 if Compression = 0
-    iImageSize = 0;
-    //horizontal resolution pixels/meter
-    iXpixelsPerM = 0;
-    //vertical resolution pixels/meter
-    iYpixelsPerM = 0;
-    //Colors used - number of colors actually used
-    iColorsUsed = 0;
-    //Colors important - number of important colors 0 = all
-    iColorsImportant = 0;
-  }
-  
+
   /**
    * Creates a copy of the source <tt>InfoHeader</tt>.
    * @param source the source to copy
@@ -175,7 +131,5 @@ public class InfoHeader {
     iYpixelsPerM = source.iYpixelsPerM;
     sBitCount = source.sBitCount;
     sPlanes = source.sPlanes;
-        
   }
-  
 }

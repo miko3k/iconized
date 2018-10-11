@@ -20,11 +20,6 @@ public class BMPConstants {
 	}
 
 	/**
-	 * The signature for the BMP format header "BM".
-	 */
-	public static final String FILE_HEADER = "BM";
-
-	/**
 	 * Specifies no compression.
 	 * 
 	 * @see InfoHeader#iCompression InfoHeader
@@ -45,25 +40,4 @@ public class BMPConstants {
 	 */
 	public static final int BI_RLE4 = 2; // 4bit RLE compression
 
-	/**
-	 * Specifies 16-bit or 32-bit "bit field" compression.
-	 * 
-	 * @see InfoHeader#iCompression InfoHeader
-	 */
-	public static final int BI_BITFIELDS = 3; // 16bit or 32bit "bit field"
-												// compression.
-
-	/**
-	 * Specifies JPEG compression.
-	 * 
-	 * @see InfoHeader#iCompression InfoHeader
-	 */
-	public static final int BI_JPEG = 4; // _JPEG compression
-
-	/**
-	 * Specifies PNG compression.
-	 * 
-	 * @see InfoHeader#iCompression InfoHeader
-	 */
-	public static final int BI_PNG = 5; // PNG compression
 }

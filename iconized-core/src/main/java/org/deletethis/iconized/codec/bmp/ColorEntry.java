@@ -11,8 +11,6 @@ package org.deletethis.iconized.codec.bmp;
 
 import org.deletethis.iconized.Buffer;
 
-import java.io.IOException;
-
 /**
  * Represents an RGB colour entry used in the palette of an indexed image (colour depth &lt;= 8).
  * @author Ian McDonagh
@@ -22,26 +20,25 @@ public class ColorEntry {
   /**
    * The red component, which should be in the range <tt>0..255</tt>.
    */
-  public int bRed;
+  final public int bRed;
   /**
    * The green component, which should be in the range <tt>0..255</tt>.
    */
-  public int bGreen;
+  final public int bGreen;
   /**
    * The blue component, which should be in the range <tt>0..255</tt>.
    */
-  public int bBlue;
+  final public int bBlue;
   /**
    * Unused.
    */
-  public int bReserved;
+  final public int bReserved;
   
   /** 
    * Reads and creates a colour entry from the source input.
    * @param in the source input
-   * @throws java.io.IOException if an error occurs
    */
-  public ColorEntry(Buffer in) throws IOException {
+  public ColorEntry(Buffer in)  {
     bBlue = in.int8();
     bGreen = in.int8();
     bRed = in.int8();
