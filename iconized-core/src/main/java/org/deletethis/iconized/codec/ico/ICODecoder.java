@@ -12,7 +12,6 @@ package org.deletethis.iconized.codec.ico;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
 import org.deletethis.iconized.codec.bmp.ColorEntry;
@@ -27,8 +26,6 @@ import org.deletethis.iconized.io.LittleEndianInputStream;
  * @author Ian McDonagh
  */
 public class ICODecoder {
-
-	private static Logger log = Logger.getLogger(ICODecoder.class.getName());
 
 	private static final int PNG_MAGIC = 0x89504E47;
 	private static final int PNG_MAGIC_LE = 0x474E5089;
@@ -58,8 +55,6 @@ public class ICODecoder {
 			try {
 				fin.close();
 			} catch (IOException ex) {
-				log.log(Level.FINE, "Failed to close file input for file "
-						+ file);
 			}
 		}
 	}
@@ -85,8 +80,6 @@ public class ICODecoder {
 			try {
 				fin.close();
 			} catch (IOException ex) {
-				log.log(Level.WARNING, "Failed to close file input for file "
-						+ file, ex);
 			}
 		}
 	}
@@ -173,8 +166,6 @@ public class ICODecoder {
 							+ " starting at unexpected file offset.");
 				}
 				int info = in.readIntLE();
-				log.log(Level.FINE, "Image #" + i + " @ " + in.getCount()
-						+ " info = " + EndianUtils.toInfoString(info));
 				if (info == 40) {
 
 					// read XOR bitmap
