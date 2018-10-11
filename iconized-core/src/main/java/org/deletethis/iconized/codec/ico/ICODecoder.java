@@ -301,9 +301,8 @@ public class ICODecoder {
 					}
 
 					IconEntry e = entries[i];
-					int size = e.iSizeInBytes;
 					// maybe ignore size and just read until IEND? Mozilla testsuite kinda expects that...
-					byte[] pngData = new byte[size-8];
+					byte[] pngData = new byte[e.iSizeInBytes-8];
 					/* int count = */in.readFully(pngData);
 					// if (count != pngData.length) {
 					// throw new
