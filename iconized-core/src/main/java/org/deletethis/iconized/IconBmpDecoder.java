@@ -3,13 +3,13 @@ package org.deletethis.iconized;
 import org.deletethis.iconized.codec.bmp.BMPDecoder;
 import org.deletethis.iconized.codec.bmp.InfoHeader;
 
-public class BmpDecoder implements BufferDecoder<Pixmap> {
-    private BmpDecoder() {
+public class IconBmpDecoder implements BufferDecoder<Pixmap> {
+    private IconBmpDecoder() {
     }
 
-    private static BmpDecoder INSTANCE = new BmpDecoder();
+    private static IconBmpDecoder INSTANCE = new IconBmpDecoder();
 
-    public static BmpDecoder getInstance() {
+    public static IconBmpDecoder getInstance() {
         return INSTANCE;
     }
 
@@ -20,21 +20,18 @@ public class BmpDecoder implements BufferDecoder<Pixmap> {
 
     @Override
     public Pixmap decodeImage(Buffer in, Params params) {
-        int info = in.int32();
-        if (info != BufferDecoder.BMP_MAGIC) {
-            throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(info));
+        int infoHeaderSize = in.int32();
+        if (infoHeaderSize != BufferDecoder.BMP_MAGIC) {
+            throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
 
         // read XOR bitmap
         // BMPDecoder bmp = new BMPDecoder(is);
         InfoHeader infoHeader;
-        infoHeader = BMPDecoder.readInfoHeader(in, info);
-        InfoHeader andHeader = new InfoHeader(infoHeader);
-        andHeader.iHeight = infoHeader.iHeight / 2;
-        andHeader.sBitCount = 1;
-        andHeader.iNumColors = 2;
-        InfoHeader xorHeader = new InfoHeader(infoHeader);
-        xorHeader.iHeight = andHeader.iHeight;
+        infoHeader = BMPDecoder.readInfoHeader(in);
+
+        InfoHeader xorHeader = infoHeader.halfHeight();
+        InfoHeader andHeader = xorHeader.mono();
 
 
         // for now, just read all the raster data (xor + and)
@@ -54,15 +51,15 @@ public class BmpDecoder implements BufferDecoder<Pixmap> {
         // Or just add it to the output list:
         // img.add(xor);
 
-        Pixmap img = new Pixmap(xorHeader.iWidth,
-                xorHeader.iHeight);
+        Pixmap img = new Pixmap(xorHeader.width,
+                xorHeader.height);
 
-        if (infoHeader.sBitCount == 32) {
+        if (infoHeader.bpp == 32) {
             // transparency from alpha
             // ignore bytes after XOR bitmap
-            int infoHeaderSize = infoHeader.iSize;
+
             // data size = w * h * 4
-            int dataSize = xorHeader.iWidth * xorHeader.iHeight * 4;
+            int dataSize = xorHeader.width * xorHeader.height * 4;
             int skip = in.size() - infoHeaderSize - dataSize;
 
             // ignore AND bitmap since alpha channel stores
@@ -80,8 +77,8 @@ public class BmpDecoder implements BufferDecoder<Pixmap> {
             Pixmap and = BMPDecoder.read(andHeader, in,
                     andColorTable);
 
-            for (int y = 0; y < xorHeader.iHeight; y++) {
-                for (int x = 0; x < xorHeader.iWidth; x++) {
+            for (int y = 0; y < xorHeader.height; y++) {
+                for (int x = 0; x < xorHeader.width; x++) {
                     int c = xor.getRGB(x, y);
                     int a = and.getRGB(x, y);
                     c = Colors.setAlpha(c, Colors.getAlpha(a));

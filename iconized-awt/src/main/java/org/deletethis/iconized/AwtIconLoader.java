@@ -45,7 +45,7 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
     private static final BufferDecoder<BufferedImage> BMP_LOADER = new BufferDecoder<BufferedImage>() {
         @Override
         public BufferedImage decodeImage(Buffer buffer, Params params) {
-            return pixmapToImage(BmpDecoder.getInstance().decodeImage(buffer, params));
+            return pixmapToImage(IconBmpDecoder.getInstance().decodeImage(buffer, params));
         }
     };
 
