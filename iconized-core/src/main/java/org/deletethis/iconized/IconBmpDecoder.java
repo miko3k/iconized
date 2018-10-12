@@ -1,8 +1,5 @@
 package org.deletethis.iconized;
 
-import org.deletethis.iconized.codec.bmp.BMPDecoder;
-import org.deletethis.iconized.codec.bmp.InfoHeader;
-
 public class IconBmpDecoder implements BufferDecoder<Pixmap> {
     private IconBmpDecoder() {
     }
@@ -26,9 +23,9 @@ public class IconBmpDecoder implements BufferDecoder<Pixmap> {
         }
 
         // read XOR bitmap
-        // BMPDecoder bmp = new BMPDecoder(is);
+        // BmpParse bmp = new BmpParse(is);
         InfoHeader infoHeader;
-        infoHeader = BMPDecoder.readInfoHeader(in);
+        infoHeader = BmpParse.readInfoHeader(in);
 
         InfoHeader xorHeader = infoHeader.halfHeight();
         InfoHeader andHeader = xorHeader.mono();
@@ -37,7 +34,7 @@ public class IconBmpDecoder implements BufferDecoder<Pixmap> {
         // for now, just read all the raster data (xor + and)
         // and store as separate images
 
-        Pixmap xor = BMPDecoder.read(xorHeader, in);
+        Pixmap xor = BmpParse.read(xorHeader, in);
         // If we want to be sure we've decoded the XOR mask
         // correctly,
         // we can write it out as a PNG to a temp file here.
@@ -51,15 +48,15 @@ public class IconBmpDecoder implements BufferDecoder<Pixmap> {
         // Or just add it to the output list:
         // img.add(xor);
 
-        Pixmap img = new Pixmap(xorHeader.width,
-                xorHeader.height);
+        Pixmap img = new Pixmap(xorHeader.getWidth(),
+                xorHeader.getHeight());
 
-        if (infoHeader.bpp == 32) {
+        if (infoHeader.getBpp() == 32) {
             // transparency from alpha
             // ignore bytes after XOR bitmap
 
             // data size = w * h * 4
-            int dataSize = xorHeader.width * xorHeader.height * 4;
+            int dataSize = xorHeader.getWidth() * xorHeader.getHeight() * 4;
             int skip = in.size() - infoHeaderSize - dataSize;
 
             // ignore AND bitmap since alpha channel stores
@@ -74,11 +71,11 @@ public class IconBmpDecoder implements BufferDecoder<Pixmap> {
             }
             // nothing needs to be done at this point
         } else {
-            Pixmap and = BMPDecoder.read(andHeader, in,
+            Pixmap and = BmpParse.read(andHeader, in,
                     andColorTable);
 
-            for (int y = 0; y < xorHeader.height; y++) {
-                for (int x = 0; x < xorHeader.width; x++) {
+            for (int y = 0; y < xorHeader.getHeight(); y++) {
+                for (int x = 0; x < xorHeader.getWidth(); x++) {
                     int c = xor.getRGB(x, y);
                     int a = and.getRGB(x, y);
                     c = Colors.setAlpha(c, Colors.getAlpha(a));

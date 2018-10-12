@@ -4,20 +4,17 @@
  * @author Ian McDonagh
  */
 
-package org.deletethis.iconized.codec.bmp;
-
-import org.deletethis.iconized.Buffer;
-import org.deletethis.iconized.Colors;
-import org.deletethis.iconized.IndexedPixmap;
-import org.deletethis.iconized.Pixmap;
+package org.deletethis.iconized;
 
 
 /**
  * Decodes images in BMP format.
  *
  * @author Ian McDonagh
+ * @author Peter Hanula
  */
-public class BMPDecoder {
+class BmpParse {
+    private BmpParse() {}
 
     /**
      * Retrieves a bit from the lowest order byte of the given integer.
@@ -48,7 +45,7 @@ public class BMPDecoder {
      * @param in the <tt>InputStream</tt> to read
      * @return the <tt>InfoHeader</tt> structure
      */
-    public static InfoHeader readInfoHeader(Buffer in) {
+    static InfoHeader readInfoHeader(Buffer in) {
         //Width
         int width = in.int32();
         //Height
@@ -83,12 +80,12 @@ public class BMPDecoder {
      *                   {@link #readInfoHeader readInfoHeader()}.
      * @return the decoded image read from the source input
      */
-    public static Pixmap read(InfoHeader infoHeader, Buffer lis) {
+    static Pixmap read(InfoHeader infoHeader, Buffer lis) {
         /* Color table (palette) */
         IndexedPixmap.Palette colorTable = null;
 
         //color table is only present for 1, 4 or 8 bit (indexed) images
-        if (infoHeader.bpp <= 8) {
+        if (infoHeader.getBpp() <= 8) {
             colorTable = readColorTable(infoHeader, lis);
         }
 
@@ -105,43 +102,43 @@ public class BMPDecoder {
      * @param lis        the source input
      * @return the decoded image read from the source input
      */
-    public static Pixmap read(InfoHeader infoHeader, Buffer lis,
+    static Pixmap read(InfoHeader infoHeader, Buffer lis,
                               IndexedPixmap.Palette colorTable) {
 
         Pixmap img;
 
         //1-bit (monochrome) uncompressed
-        if (infoHeader.bpp == 1 && infoHeader.compression == InfoHeader.BI_RGB) {
+        if (infoHeader.getBpp() == 1 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
 
             img = read1(infoHeader, lis, colorTable);
 
         }
         //4-bit uncompressed
-        else if (infoHeader.bpp == 4 && infoHeader.compression == InfoHeader.BI_RGB) {
+        else if (infoHeader.getBpp() == 4 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
 
             img = read4(infoHeader, lis, colorTable);
 
         }
         //8-bit uncompressed
-        else if (infoHeader.bpp == 8 && infoHeader.compression == InfoHeader.BI_RGB) {
+        else if (infoHeader.getBpp() == 8 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
 
             img = read8(infoHeader, lis, colorTable);
 
         }
         //24-bit uncompressed
-        else if (infoHeader.bpp == 24 && infoHeader.compression == InfoHeader.BI_RGB) {
+        else if (infoHeader.getBpp() == 24 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
 
             img = read24(infoHeader, lis);
 
         }
         //32bit uncompressed
-        else if (infoHeader.bpp == 32 && infoHeader.compression == InfoHeader.BI_RGB) {
+        else if (infoHeader.getBpp() == 32 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
 
             img = read32(infoHeader, lis);
 
         } else {
-            throw new IllegalArgumentException("Unrecognized bitmap format: bit count=" + infoHeader.bpp + ", compression=" +
-                    infoHeader.compression);
+            throw new IllegalArgumentException("Unrecognized bitmap format: bit count=" + infoHeader.getBpp() + ", compression=" +
+                    infoHeader.getCompression());
         }
 
         return img;
@@ -190,12 +187,12 @@ public class BMPDecoder {
 
         // Create indexed image
         IndexedPixmap img = new IndexedPixmap(
-                infoHeader.width, infoHeader.height,
+                infoHeader.getWidth(), infoHeader.getHeight(),
                 colorTable);
 
         //padding
 
-        int bitsPerLine = infoHeader.width;
+        int bitsPerLine = infoHeader.getWidth();
         if (bitsPerLine % 32 != 0) {
             bitsPerLine = (bitsPerLine / 32 + 1) * 32;
         }
@@ -203,12 +200,12 @@ public class BMPDecoder {
         int bytesPerLine = bitsPerLine / 8;
         int[] line = new int[bytesPerLine];
 
-        for (int y = infoHeader.height - 1; y >= 0; y--) {
+        for (int y = infoHeader.getHeight() - 1; y >= 0; y--) {
             for (int i = 0; i < bytesPerLine; i++) {
                 line[i] = lis.int8();
             }
 
-            for (int x = 0; x < infoHeader.width; x++) {
+            for (int x = 0; x < infoHeader.getWidth(); x++) {
                 int i = x / 8;
                 int v = line[i];
                 int b = x % 8;
@@ -239,11 +236,11 @@ public class BMPDecoder {
         // Colour for each pixel specified by the color index in the pallette.
 
         IndexedPixmap img = new IndexedPixmap(
-                infoHeader.width, infoHeader.height,
+                infoHeader.getWidth(), infoHeader.getHeight(),
                 colorTable);
 
         //padding
-        int bitsPerLine = infoHeader.width * 4;
+        int bitsPerLine = infoHeader.getWidth() * 4;
         if (bitsPerLine % 32 != 0) {
             bitsPerLine = (bitsPerLine / 32 + 1) * 32;
         }
@@ -251,7 +248,7 @@ public class BMPDecoder {
 
         int[] line = new int[bytesPerLine];
 
-        for (int y = infoHeader.height - 1; y >= 0; y--) {
+        for (int y = infoHeader.getHeight() - 1; y >= 0; y--) {
             //scan line
             for (int i = 0; i < bytesPerLine; i++) {
                 int b = lis.int8();
@@ -259,7 +256,7 @@ public class BMPDecoder {
             }
 
             //get pixels
-            for (int x = 0; x < infoHeader.width; x++) {
+            for (int x = 0; x < infoHeader.getWidth(); x++) {
                 //get byte index for line
                 int b = x / 2; // 2 pixels per byte
                 int i = x % 2;
@@ -292,7 +289,7 @@ public class BMPDecoder {
         //no alpha
 
         IndexedPixmap img = new IndexedPixmap(
-                infoHeader.width, infoHeader.height,
+                infoHeader.getWidth(), infoHeader.getHeight(),
                 colorTable);
     
       /*
@@ -307,15 +304,15 @@ public class BMPDecoder {
        */
 
         //padding
-        int dataPerLine = infoHeader.width;
+        int dataPerLine = infoHeader.getWidth();
         int bytesPerLine = dataPerLine;
         if (bytesPerLine % 4 != 0) {
             bytesPerLine = (bytesPerLine / 4 + 1) * 4;
         }
         int padBytesPerLine = bytesPerLine - dataPerLine;
 
-        for (int y = infoHeader.height - 1; y >= 0; y--) {
-            for (int x = 0; x < infoHeader.width; x++) {
+        for (int y = infoHeader.getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < infoHeader.getWidth(); x++) {
                 int b = lis.int8();
                 //int clr = c[b];
                 //img.setRGB(x, y, clr);
@@ -347,18 +344,18 @@ public class BMPDecoder {
         // no alpha
 
         Pixmap img = new Pixmap(
-                infoHeader.width, infoHeader.height);
+                infoHeader.getWidth(), infoHeader.getHeight());
 
         //padding to nearest 32 bits
-        int dataPerLine = infoHeader.width * 3;
+        int dataPerLine = infoHeader.getWidth() * 3;
         int bytesPerLine = dataPerLine;
         if (bytesPerLine % 4 != 0) {
             bytesPerLine = (bytesPerLine / 4 + 1) * 4;
         }
         int padBytesPerLine = bytesPerLine - dataPerLine;
 
-        for (int y = infoHeader.height - 1; y >= 0; y--) {
-            for (int x = 0; x < infoHeader.width; x++) {
+        for (int y = infoHeader.getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < infoHeader.getWidth(); x++) {
                 int b = lis.int8();
                 int g = lis.int8();
                 int r = lis.int8();
@@ -390,10 +387,10 @@ public class BMPDecoder {
         //No padding since each pixel = 32 bits
 
         Pixmap img = new Pixmap(
-                infoHeader.width, infoHeader.height);
+                infoHeader.getWidth(), infoHeader.getHeight());
 
-        for (int y = infoHeader.height - 1; y >= 0; y--) {
-            for (int x = 0; x < infoHeader.width; x++) {
+        for (int y = infoHeader.getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < infoHeader.getWidth(); x++) {
                 int b = lis.int8();
                 int g = lis.int8();
                 int r = lis.int8();
