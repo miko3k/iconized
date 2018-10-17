@@ -35,63 +35,28 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
             AND_1
     };
 
-    public T decodeImage(Buffer in, Params params) {
+    public T decodeImage(Buffer in) {
         int infoHeaderSize = in.int32();
         if (infoHeaderSize != BufferDecoder.BMP_MAGIC) {
             throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
 
-        // read XOR bitmap
-        // BmpParse bmp = new BmpParse(is);
-        InfoHeader infoHeader;
-        infoHeader = readInfoHeader(in);
+        // read header
+        InfoHeader header;
+        header = readInfoHeader(in).halfHeight();
 
-        InfoHeader xorHeader = infoHeader.halfHeight();
-
-
-        // for now, just read all the raster data (xor + and)
+        // for now, just read xor raster data
         // and store as separate images
 
-        T xor = read(xorHeader, in);
-        // If we want to be sure we've decoded the XOR mask
-        // correctly,
-        // we can write it out as a PNG to a temp file here.
-        // try {
-        // File temp = File.createTempFile("image4j", ".png");
-        // ImageIO.write(xor, "png", temp);
-        // log.info("Wrote xor mask for image #" + i + " to "
-        // + temp.getAbsolutePath());
-        // } catch (Throwable ex) {
-        // }
-        // Or just add it to the output list:
-        // img.add(xor);
+        T xor = read(header, in);
 
-
-        if (infoHeader.getBpp() == 32) {
-            // transparency from alpha
-            // ignore bytes after XOR bitmap
-
-            // data size = w * h * 4
-            int dataSize = xorHeader.getWidth() * xorHeader.getHeight() * 4;
-            int skip = in.size() - infoHeaderSize - dataSize;
-
-            // ignore AND bitmap since alpha channel stores
-            // transparency
-
-            // If we skipped less bytes than expected, the AND mask
-            // is probably badly formatted.
-            // If we're at the last/only entry in the file, silently
-            // ignore and continue processing...
-            if (!params.isLastImage()) {
-                in.skip(skip);
-            }
-            // nothing needs to be done at this point
-        } else {
-            ArrayPixmap andMask = new ArrayPixmap(xorHeader.getWidth(), xorHeader.getHeight());
+        // 32 bit icon has transparency from alpha so doing nothing is fine
+        if (header.getBpp() != 32) {
+            ArrayPixmap andMask = new ArrayPixmap(header.getWidth(), header.getHeight());
             read1(andMask, in, andColorTable);
 
-            for (int y = 0; y < xorHeader.getHeight(); y++) {
-                for (int x = 0; x < xorHeader.getWidth(); x++) {
+            for (int y = 0; y < header.getHeight(); y++) {
+                for (int x = 0; x < header.getWidth(); x++) {
                     int a = andMask.getRGB(x, y);
                     if(a == AND_1) {
                         xor.setRGB(x, y, 0);
@@ -134,10 +99,13 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
     private InfoHeader readInfoHeader(Buffer in) {
         //Width
         int width = in.int32();
+
         //Height
         int height = in.int32();
+
         //Planes (=1)
         in.skip(2);
+
         //Bit count
         int bpp = in.int16();
 
@@ -145,12 +113,16 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
         int compression = in.int32();
         //Image size - compressed size of image or 0 if Compression = 0
         in.skip(4);
+
         //horizontal resolution pixels/meter
         in.skip(4);
+
         //vertical resolution pixels/meter
         in.skip(4);
+
         //Colors used - number of colors actually used
         in.skip(4);
+
         //Colors important - number of important colors 0 = all
         in.skip(4);
 

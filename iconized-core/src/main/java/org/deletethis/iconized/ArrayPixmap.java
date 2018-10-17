@@ -26,7 +26,7 @@ final public class ArrayPixmap implements Pixmap {
     private final int width, height;
     private int [] data;
 
-    public static PixmapFactory<ArrayPixmap> INSTANCE = new PixmapFactory<ArrayPixmap>() {
+    public static PixmapFactory<ArrayPixmap> FACTORY = new PixmapFactory<ArrayPixmap>() {
         @Override
         public ArrayPixmap createPixmap(int width, int height) {
             return new ArrayPixmap(width, height);

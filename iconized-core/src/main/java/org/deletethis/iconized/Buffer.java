@@ -89,11 +89,6 @@ public class Buffer {
         return byte8(index) & 0xFF;
     }
 
-    public void readBytes(byte[] out, int length) {
-        readBytes(pos, out, length);
-        pos += length;
-    }
-
 
     private byte byte8(int index) {
         if(index >= size) {
@@ -124,13 +119,6 @@ public class Buffer {
         return b1 | (b2 << 8) | (b3 << 16) | (b4 << 24);
     }
 
-    private void readBytes(int index, byte[] out, int length) {
-        if(index > size-length) {
-            throw new IllegalArgumentException("offset outside!");
-        }
-        System.arraycopy(data, index+offset, out, 0, length);
-    }
-
     public InputStream toInputStream() {
         return new ByteArrayInputStream(data, offset, size);
     }
@@ -139,6 +127,5 @@ public class Buffer {
         return size;
     }
 
-    public int remaining() { return size-offset; }
 
 }

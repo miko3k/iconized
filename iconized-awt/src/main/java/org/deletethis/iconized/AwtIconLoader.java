@@ -73,8 +73,8 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
 
     private static final BufferDecoder<BufferedImage> BMP_LOADER = new BufferDecoder<BufferedImage>() {
         @Override
-        public BufferedImage decodeImage(Buffer buffer, Params params) {
-            return BMP_DECODER.decodeImage(buffer, params).image;
+        public BufferedImage decodeImage(Buffer buffer) {
+            return BMP_DECODER.decodeImage(buffer).image;
         }
     };
 
@@ -90,7 +90,7 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
 
             return new BufferDecoder<BufferedImage>() {
                 @Override
-                public BufferedImage decodeImage(Buffer buffer, Params params) {
+                public BufferedImage decodeImage(Buffer buffer) {
                     return readImage(imageReader, buffer);
                 }
             };

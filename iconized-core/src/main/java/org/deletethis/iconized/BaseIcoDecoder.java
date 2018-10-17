@@ -36,6 +36,18 @@ abstract public class BaseIcoDecoder<T> {
         return decode(new Buffer(buffer, offset, length));
     }
 
+    private static class IconInfo {
+        final private int imageNumber;
+        final private int dataSize;
+        final private int dataOffset;
+
+        public IconInfo(int imageNumber, int dataSize, int dataOffset) {
+            this.imageNumber = imageNumber;
+            this.dataSize = dataSize;
+            this.dataOffset = dataOffset;
+        }
+    }
+
     private List<T> decode(Buffer buffer) {
 
         if(buffer.int16() != 0) {
@@ -49,19 +61,30 @@ abstract public class BaseIcoDecoder<T> {
         int numberOfImages = buffer.int16();
 
         List<T> result = new ArrayList<>(numberOfImages);
+        List<IconInfo> icons = new ArrayList<>(numberOfImages);
 
-        for(int currentImage = 0; currentImage < numberOfImages; ++currentImage) {
+        for (int currentImage = 0; currentImage < numberOfImages; ++currentImage) {
+            // information about colors etc are quite unreliable, coz they tend to overflow with big values,
+            // we will just ignore them
+            // discard:
+            //    - width, height, number of colors, and reserved
+            //    - (for ICO) planes and bpp information
+            //    - (for CUR) hotspot coordinates
+            buffer.skip(8);
+
+            int dataSize = buffer.int32();
+            int dataOffset = buffer.int32();
+
+            icons.add(new IconInfo(currentImage, dataSize, dataOffset));
+        }
+
+        for(IconInfo iconInfo: icons) {
+            int currentImage = iconInfo.imageNumber;
+            int dataOffset = iconInfo.dataOffset;
+            int dataSize = iconInfo.dataSize;
+
             try {
-                // information about colors etc are quite unreliable, coz they tend to overflow with big values,
-                // we will just ignore them
-                // discard:
-                //    - width, height, number of colors, and reserved
-                //    - (for ICO) planes and bpp information
-                //    - (for CUR) hotspot coordinates
-                buffer.skip(8);
-
-                int dataSize = buffer.int32();
-                int dataOffset = buffer.int32();
+                System.out.println("IMG" + currentImage + ": offset = " + dataOffset + ", size: " + dataSize);
 
                 int magic = buffer.int32(dataOffset);
 
@@ -70,10 +93,7 @@ abstract public class BaseIcoDecoder<T> {
                 if (imageDecoder == null) {
                     throw new IllegalArgumentException("unknown magic: " + Integer.toHexString(magic));
                 }
-
-                boolean lastImage = currentImage >= numberOfImages-1;
-
-                result.add(imageDecoder.decodeImage(buffer.slice(dataOffset, dataSize), new BufferDecoder.Params(lastImage)));
+                result.add(imageDecoder.decodeImage(buffer.slice(dataOffset, dataSize)));
             } catch(IllegalArgumentException ex) {
                 throw new IllegalArgumentException("Pixmap #" + currentImage + ": " + ex.getMessage(), ex);
             }
