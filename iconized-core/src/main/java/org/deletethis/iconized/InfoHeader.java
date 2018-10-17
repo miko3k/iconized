@@ -1,19 +1,27 @@
 /*
- * InfoHeader.java
+ * Iconized - an .ico parser in Java
  *
- * Created on 10 May 2006, 08:10
+ * Copyright (c) 2015-2017 Ian McDonagh
+ * Copyright (c) 2018, Peter Hanula
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.deletethis.iconized;
 
 /**
  * Represents a bitmap <tt>InfoHeader</tt> structure, which provides header information.
- *
- * @author Ian McDonagh
- * @author Peter Hanula
  */
 class InfoHeader {
     /**
@@ -40,20 +48,10 @@ class InfoHeader {
         return new InfoHeader(getWidth(), getHeight() /2, getBpp(), getCompression());
     }
 
-    InfoHeader mono() {
-        return new InfoHeader(getWidth(), getHeight(), 1, getCompression());
-    }
-
-    /**
-     * The width in pixels of the bitmap represented by this <tt>InfoHeader</tt>.
-     */
     int getWidth() {
         return width;
     }
 
-    /**
-     * The height in pixels of the bitmap represented by this <tt>InfoHeader</tt>.
-     */
     int getHeight() {
         return height;
     }

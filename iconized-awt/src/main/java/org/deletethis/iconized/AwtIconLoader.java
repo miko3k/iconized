@@ -23,14 +23,35 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
         }
     }
 
-    private static BufferedImage pixmapToImage(Pixmap pixmap) {
-        int[] bitMasks = new int[]{ 0xFF0000, 0xFF00, 0xFF, 0xFF000000 };
-        SinglePixelPackedSampleModel sm = new SinglePixelPackedSampleModel(
-                DataBuffer.TYPE_INT, pixmap.getWidth(), pixmap.getHeight(), bitMasks);
-        DataBufferInt db = new DataBufferInt(pixmap.getData(), pixmap.getData().length);
-        WritableRaster wr = Raster.createWritableRaster(sm, db, null);
-        return new BufferedImage(ColorModel.getRGBdefault(), wr, false, null);
+    private static class BufferedImagePixmap implements Pixmap {
+        private final int [] data;
+        private final BufferedImage image;
+        private final int width, height;
+
+        public BufferedImagePixmap(int width, int height) {
+            this.width = width;
+            this.height = height;
+            this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            this.data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        }
+
+
+        @Override
+        public int getWidth() {
+            return width;
+        }
+
+        @Override
+        public int getHeight() {
+            return height;
+        }
+
+        @Override
+        public void setRGB(int x, int y, int rgb) {
+            data[y*width+x] = rgb;
+        }
     }
+
 
     private BufferedImage readImage(ImageReader imageReader, Buffer buffer) {
         try {
@@ -42,10 +63,18 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
         }
     }
 
+    private static final IconBmpDecoder<BufferedImagePixmap> BMP_DECODER = new IconBmpDecoder<>(new PixmapFactory<BufferedImagePixmap>() {
+        @Override
+        public BufferedImagePixmap createPixmap(int width, int height) {
+            return new BufferedImagePixmap(width, height);
+        }
+    });
+
+
     private static final BufferDecoder<BufferedImage> BMP_LOADER = new BufferDecoder<BufferedImage>() {
         @Override
         public BufferedImage decodeImage(Buffer buffer, Params params) {
-            return pixmapToImage(IconBmpDecoder.getInstance().decodeImage(buffer, params));
+            return BMP_DECODER.decodeImage(buffer, params).image;
         }
     };
 

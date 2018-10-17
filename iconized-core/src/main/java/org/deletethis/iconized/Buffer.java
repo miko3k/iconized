@@ -1,3 +1,22 @@
+/*
+ * Iconized - an .ico parser in Java
+ *
+ * Copyright (c) 2018, Peter Hanula
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package org.deletethis.iconized;
 
 import java.io.ByteArrayInputStream;
@@ -47,6 +66,13 @@ public class Buffer {
         return result;
     }
 
+    public byte byte8() {
+        byte result = byte8(pos);
+        ++pos;
+        return result;
+    }
+
+
     public int int16() {
         int result = int16(pos);
         pos += 2;
@@ -59,14 +85,24 @@ public class Buffer {
         return result;
     }
 
-    public int int8(int index) {
+    private int int8(int index) {
+        return byte8(index) & 0xFF;
+    }
+
+    public void readBytes(byte[] out, int length) {
+        readBytes(pos, out, length);
+        pos += length;
+    }
+
+
+    private byte byte8(int index) {
         if(index >= size) {
             throw new IllegalArgumentException("offset outside!");
         }
-        return data[index+offset] & 0xFF;
+        return data[index+offset];
     }
 
-    public int int16(int index) {
+    private int int16(int index) {
         if(index >= size-1) {
             throw new IllegalArgumentException("offset outside!");
         }
@@ -88,6 +124,13 @@ public class Buffer {
         return b1 | (b2 << 8) | (b3 << 16) | (b4 << 24);
     }
 
+    private void readBytes(int index, byte[] out, int length) {
+        if(index > size-length) {
+            throw new IllegalArgumentException("offset outside!");
+        }
+        System.arraycopy(data, index+offset, out, 0, length);
+    }
+
     public InputStream toInputStream() {
         return new ByteArrayInputStream(data, offset, size);
     }
@@ -97,4 +140,5 @@ public class Buffer {
     }
 
     public int remaining() { return size-offset; }
+
 }
