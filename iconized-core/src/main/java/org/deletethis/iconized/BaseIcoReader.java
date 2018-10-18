@@ -59,12 +59,12 @@ abstract public class BaseIcoReader<T> {
     private List<T> decode(IconInputStream iconInputStream) throws IOException {
 
         if(iconInputStream.readShortLE() != 0) {
-            throw new IllegalArgumentException("first WORD must be 0");
+            throw new BadIconFormatException("first WORD must be 0");
         }
 
         int type = iconInputStream.readShortLE();
         if(type != ICON && type != CURSOR)
-            throw new IllegalArgumentException("second WORD must be 0 or 1");
+            throw new BadIconFormatException("second WORD must be 0 or 1");
 
         int numberOfImages = iconInputStream.readShortLE();
 
@@ -111,11 +111,11 @@ abstract public class BaseIcoReader<T> {
                 ImageDecoder<T> imageDecoder = getImageDecoder(magic);
 
                 if (imageDecoder == null) {
-                    throw new IllegalArgumentException("unknown magic: " + Integer.toHexString(magic));
+                    throw new BadIconFormatException("unknown magic: " + Integer.toHexString(magic));
                 }
                 result.set(currentImage, imageDecoder.decodeImage(iconInputStream));
-            } catch(IllegalArgumentException ex) {
-                throw new IllegalArgumentException("Pixmap #" + currentImage + ": " + ex.getMessage(), ex);
+            } catch(BadIconFormatException ex) {
+                throw new BadIconFormatException("Icon #" + currentImage + ": " + ex.getMessage(), ex);
             }
         }
         iconInputStream.close();

@@ -1,1 +1,0 @@
-for x in *.png; do mogrify -colorspace srgb -format rgba -depth 8 $x; done

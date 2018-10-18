@@ -1,5 +1,5 @@
-
 dependencies {
     compile project(':iconized-core')
-        testCompile group: 'commons-io', name: 'commons-io', version:'2.6'
+    testCompile project(':iconized-test')
+
 }

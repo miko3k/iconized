@@ -37,10 +37,18 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
             AND_1
     };
 
+    private static int createColor(int red, int green, int blue, int alpha) {
+        return (alpha&0xFF) << 24 | (red&0xFF) << 16 | (green&0xFF) << 8 | (blue&0xFF);
+    }
+
+    private static int createColor(int red, int green, int blue) {
+        return 0xFF << 24 | (red&0xFF) << 16 | (green&0xFF) << 8 | (blue&0xFF);
+    }
+
     public T decodeImage(IconInputStream in) throws IOException {
         int infoHeaderSize = in.readIntLE();
         if (infoHeaderSize != ImageDecoder.BMP_MAGIC) {
-            throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
+            throw new BadIconFormatException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
 
         // read header
@@ -166,39 +174,40 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
                 int[] colorTable) throws IOException {
 
         T pm = pixmapFactory.createPixmap(infoHeader.getWidth(), infoHeader.getHeight());
+        int bpp = infoHeader.getBpp();
+        int compression = infoHeader.getCompression();
 
-        if (infoHeader.getBpp() == 1 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
+        if (bpp == 1 && compression == InfoHeader.BI_RGB) {
             //1-bit (monochrome) uncompressed
             read1(pm, lis, colorTable);
             return pm;
         }
 
-        if (infoHeader.getBpp() == 4 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
+        if (bpp == 4 && compression == InfoHeader.BI_RGB) {
             //4-bit uncompressed
             read4(pm, lis, colorTable);
             return pm;
         }
 
-        if (infoHeader.getBpp() == 8 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
+        if (bpp == 8 && compression == InfoHeader.BI_RGB) {
             //8-bit uncompressed
             read8(pm, lis, colorTable);
             return pm;
         }
 
-        if (infoHeader.getBpp() == 24 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
+        if (bpp == 24 && compression == InfoHeader.BI_RGB) {
             //24-bit uncompressed
             read24(pm, lis);
             return pm;
         }
 
-        if (infoHeader.getBpp() == 32 && infoHeader.getCompression() == InfoHeader.BI_RGB) {
+        if (bpp == 32 && compression == InfoHeader.BI_RGB) {
             //32bit uncompressed
             read32(pm, lis);
             return pm;
         }
 
-        throw new IllegalArgumentException("Unrecognized bitmap format: bit count=" + infoHeader.getBpp() + ", compression=" +
-                    infoHeader.getCompression());
+        throw new BadIconFormatException("Unrecognized bitmap format: bpp = " + bpp + ", compression = " + compression);
     }
 
     /**
@@ -219,7 +228,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
             byte bRed = lis.readByte();
             lis.skipFully(1);
 
-            colors[i] = Colors.create(bRed, bGreen, bBlue, (byte)0xFF);
+            colors[i] = createColor(bRed, bGreen, bBlue, (byte)0xFF);
         }
         return colors;
     }
@@ -346,7 +355,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
                 byte g = lis.readByte();
                 byte r = lis.readByte();
 
-                int color = Colors.create(r, g, b);
+                int color = createColor(r, g, b);
 
                 img.setRGB(x, y, color);
             }
@@ -371,7 +380,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
                 byte g = lis.readByte();
                 byte r = lis.readByte();
                 byte a = lis.readByte();
-                img.setRGB(x, y, Colors.create(r, g, b, a));
+                img.setRGB(x, y, createColor(r, g, b, a));
             }
         }
     }
