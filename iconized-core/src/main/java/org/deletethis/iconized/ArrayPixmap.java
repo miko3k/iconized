@@ -81,14 +81,14 @@ public class ArrayPixmap implements Pixmap {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(width, height);
+        int result = width + 31 * height;
         result = 31 * result + Arrays.hashCode(data);
         return result;
     }
 
     @Override
     public String toString() {
-        return super.toString() + '{' + width + 'x' + height + '}';
+        return "ArrayPixmap(" + width + 'x' + height + ')';
     }
 
     public int [] getData() {
