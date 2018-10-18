@@ -1,42 +1,44 @@
-package org.deletethis.iconized.reftest;
+package org.deletethis.iconized;
 
-import org.deletethis.iconized.AwtIconLoader;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import org.deletethis.iconized.reftest.RefTestSupport;
+import org.deletethis.iconized.reftest.SuccessTestCase;
+import org.deletethis.iconized.reftest.TestCaseList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
 @RunWith(Parameterized.class)
-public class RefTests {
+public class RefTest {
     @Parameterized.Parameters(name = "{0}")
     public static Iterable<SuccessTestCase> data() {
         return TestCaseList.getSuccessTestCases();
     }
 
-    @Parameterized.Parameter
+    @Parameterized.Parameter // first data value (0) is default
     public SuccessTestCase currentTestCase;
 
-    private void assertImagesEqual(BufferedImage ref, BufferedImage icon) {
-        RefTestSupport.assertImagesEqual(new BufferedImageWrapper(ref), new BufferedImageWrapper(icon));
+    private void assertImagesEqual(Bitmap ref, Bitmap icon) {
+        RefTestSupport.assertImagesEqual(new BitmapWrapper(ref), new BitmapWrapper(icon));
     }
 
     @Test
     public void testLoad() throws IOException {
-        List<BufferedImage> images = AwtIconLoader.getInstance().decode(currentTestCase.getIcoFile());
+        List<Bitmap> images = AndroidIconLoader.getInstance().decode(currentTestCase.getIcoFile());
 
         List<byte[]> pngs = currentTestCase.getResultAsPng();
 
         for (int num = 0; num < pngs.size(); ++num) {
-            if(pngs.get(num) == null)
+            byte[] png = pngs.get(num);
+            if(png == null)
                 continue;
 
-            BufferedImage ref = ImageIO.read(new ByteArrayInputStream(pngs.get(num)));
-            BufferedImage icon = images.get(num);
+            Bitmap ref = BitmapFactory.decodeByteArray(png, 0, png.length);
+            Bitmap icon = images.get(num);
 
             try {
                 assertImagesEqual(ref, icon);

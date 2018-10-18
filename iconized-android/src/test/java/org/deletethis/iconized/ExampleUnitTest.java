@@ -1,5 +1,6 @@
 package org.deletethis.iconized;
 
+import android.graphics.BitmapFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

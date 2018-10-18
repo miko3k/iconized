@@ -99,8 +99,6 @@ abstract public class BaseIcoReader<T> {
             int dataOffset = iconInfo.dataOffset;
             int dataSize = iconInfo.dataSize;
 
-            System.out.println("ICN: " + imageNumber + ", off: " + dataOffset + ", size: " + dataSize + ", so: " + stream.getOffset());
-
             int streamOffset = stream.getOffset();
             int skip = dataOffset - streamOffset;
             if(skip < 0) {

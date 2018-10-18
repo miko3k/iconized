@@ -19,7 +19,7 @@ public class RefTestsFail {
         return TestCaseList.getFailTestCases();
     }
 
-    @Parameterized.Parameter // first data value (0) is default
+    @Parameterized.Parameter
     public FailTestCase currentTestCase;
 
     @Test
