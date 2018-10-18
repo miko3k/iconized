@@ -20,7 +20,9 @@
  */
 package org.deletethis.iconized;
 
-public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
+import java.io.IOException;
+
+public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
     private final PixmapFactory<T> pixmapFactory;
 
     public IconBmpDecoder(PixmapFactory<T> pixmapFactory) {
@@ -35,9 +37,9 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
             AND_1
     };
 
-    public T decodeImage(Buffer in) {
-        int infoHeaderSize = in.int32();
-        if (infoHeaderSize != BufferDecoder.BMP_MAGIC) {
+    public T decodeImage(IconInputStream in) throws IOException {
+        int infoHeaderSize = in.readIntLE();
+        if (infoHeaderSize != ImageDecoder.BMP_MAGIC) {
             throw new IllegalArgumentException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
 
@@ -96,35 +98,35 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
      * @param in the <tt>InputStream</tt> to read
      * @return the <tt>InfoHeader</tt> structure
      */
-    private InfoHeader readInfoHeader(Buffer in) {
+    private InfoHeader readInfoHeader(IconInputStream in) throws IOException {
         //Width
-        int width = in.int32();
+        int width = in.readIntLE();
 
         //Height
-        int height = in.int32();
+        int height = in.readIntLE();
 
         //Planes (=1)
-        in.skip(2);
+        in.skipFully(2);
 
         //Bit count
-        int bpp = in.int16();
+        int bpp = in.readShortLE();
 
         //Compression
-        int compression = in.int32();
+        int compression = in.readIntLE();
         //Image size - compressed size of image or 0 if Compression = 0
-        in.skip(4);
+        in.skipFully(4);
 
         //horizontal resolution pixels/meter
-        in.skip(4);
+        in.skipFully(4);
 
         //vertical resolution pixels/meter
-        in.skip(4);
+        in.skipFully(4);
 
         //Colors used - number of colors actually used
-        in.skip(4);
+        in.skipFully(4);
 
         //Colors important - number of important colors 0 = all
-        in.skip(4);
+        in.skipFully(4);
 
         return new InfoHeader(width, height, bpp, compression);
     }
@@ -138,7 +140,7 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
      *                   {@link #readInfoHeader readInfoHeader()}.
      * @return the decoded image read from the source input
      */
-    private T read(InfoHeader infoHeader, Buffer lis) {
+    private T read(InfoHeader infoHeader, IconInputStream lis) throws IOException {
         /* Color table (palette) */
         int[] colorTable = null;
 
@@ -160,8 +162,8 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
      * @param lis        the source input
      * @return the decoded image read from the source input
      */
-    private T read(InfoHeader infoHeader, Buffer lis,
-                int[] colorTable) {
+    private T read(InfoHeader infoHeader, IconInputStream lis,
+                int[] colorTable) throws IOException {
 
         T pm = pixmapFactory.createPixmap(infoHeader.getWidth(), infoHeader.getHeight());
 
@@ -207,22 +209,22 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
      * @param lis        the <tt>InputStream</tt> to read
      * @return the decoded image read from the source input
      */
-    private int[] readColorTable(int numColors, Buffer lis) {
+    private int[] readColorTable(int numColors, IconInputStream lis) throws IOException {
 
         int[] colors = new int[numColors];
 
         for (int i = 0; i < numColors; i++) {
-            byte bBlue = lis.byte8();
-            byte bGreen = lis.byte8();
-            byte bRed = lis.byte8();
-            lis.skip(1);
+            byte bBlue = lis.readByte();
+            byte bGreen = lis.readByte();
+            byte bRed = lis.readByte();
+            lis.skipFully(1);
 
             colors[i] = Colors.create(bRed, bGreen, bBlue, (byte)0xFF);
         }
         return colors;
     }
 
-    private void read1(Pixmap img, Buffer lis, int[] colorTable) {
+    private void read1(Pixmap img, IconInputStream lis, int[] colorTable) throws IOException {
         //1 bit per pixel or 8 pixels per byte
         //each pixel specifies the palette index
 
@@ -236,11 +238,11 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
         }
 
         int bytesPerLine = bitsPerLine / 8;
-        int[] line = new int[bytesPerLine];
+        byte[] line = new byte[bytesPerLine];
 
         for (int y = height - 1; y >= 0; y--) {
             for (int i = 0; i < bytesPerLine; i++) {
-                line[i] = lis.int8();
+                line[i] = lis.readByte();
             }
 
             for (int x = 0; x < width; x++) {
@@ -253,7 +255,7 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
         }
     }
 
-    private void read4(Pixmap img, Buffer lis, int [] colorTable) {
+    private void read4(Pixmap img, IconInputStream lis, int [] colorTable) throws IOException {
 
         // 2 pixels per byte or 4 bits per pixel.
         // Colour for each pixel specified by the color index in the pallette.
@@ -268,12 +270,12 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
         }
         int bytesPerLine = bitsPerLine / 8;
 
-        int[] line = new int[bytesPerLine];
+        byte[] line = new byte[bytesPerLine];
 
         for (int y = height - 1; y >= 0; y--) {
             //scan line
             for (int i = 0; i < bytesPerLine; i++) {
-                int b = lis.int8();
+                byte b = lis.readByte();
                 line[i] = b;
             }
 
@@ -289,7 +291,7 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
         }
     }
 
-    private void read8(Pixmap img, Buffer lis, int[] colorTable) {
+    private void read8(Pixmap img, IconInputStream lis, int[] colorTable) throws IOException {
         //1 byte per pixel
         //  color index 1 (index of color in palette)
         //lines padded to nearest 32bits
@@ -308,18 +310,18 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
 
         for (int y = height - 1; y >= 0; y--) {
             for (int x = 0; x < width; x++) {
-                int b = lis.int8();
+                int b = lis.readByte();
                 //int clr = c[b];
                 //img.setRGB(x, y, clr);
                 //set sample (colour index) for pixel
-                img.setRGB(x, y, colorTable[b]);
+                img.setRGB(x, y, colorTable[b&0xFF]);
             }
 
-            lis.skip(padBytesPerLine);
+            lis.skipFully(padBytesPerLine);
         }
     }
 
-    private void read24(Pixmap img, Buffer lis) {
+    private void read24(Pixmap img, IconInputStream lis) throws IOException {
         //3 bytes per pixel
         //  blue 1
         //  green 1
@@ -340,19 +342,19 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
 
         for (int y = height - 1; y >= 0; y--) {
             for (int x = 0; x < width; x++) {
-                byte b = lis.byte8();
-                byte g = lis.byte8();
-                byte r = lis.byte8();
+                byte b = lis.readByte();
+                byte g = lis.readByte();
+                byte r = lis.readByte();
 
                 int color = Colors.create(r, g, b);
 
                 img.setRGB(x, y, color);
             }
-            lis.skip(padBytesPerLine);
+            lis.skipFully(padBytesPerLine);
         }
     }
 
-    private void read32(Pixmap img,  Buffer lis) {
+    private void read32(Pixmap img,  IconInputStream lis) throws IOException {
         //4 bytes per pixel
         // blue 1
         // green 1
@@ -365,10 +367,10 @@ public class IconBmpDecoder<T extends Pixmap> implements BufferDecoder<T> {
 
         for (int y = height - 1; y >= 0; y--) {
             for (int x = 0; x < width; x++) {
-                byte b = lis.byte8();
-                byte g = lis.byte8();
-                byte r = lis.byte8();
-                byte a = lis.byte8();
+                byte b = lis.readByte();
+                byte g = lis.readByte();
+                byte r = lis.readByte();
+                byte a = lis.readByte();
                 img.setRGB(x, y, Colors.create(r, g, b, a));
             }
         }

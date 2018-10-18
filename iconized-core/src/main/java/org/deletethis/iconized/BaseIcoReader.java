@@ -20,23 +20,26 @@
 
 package org.deletethis.iconized;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-abstract public class BaseIcoDecoder<T> {
+abstract public class BaseIcoReader<T> {
     private final static int ICON = 1, CURSOR = 2;
 
-    abstract protected BufferDecoder<T> getImageDecoder(int magic);
+    abstract protected ImageDecoder<T> getImageDecoder(int magic);
 
-    final public List<T> decode(byte [] buffer) {
-        return decode(new Buffer(buffer, 0, buffer.length));
+    final public List<T> decode(byte [] buffer) throws IOException {
+        return decode(buffer, 0, buffer.length);
     }
 
-    final public List<T> decode(byte [] buffer, int offset, int length) {
-        return decode(new Buffer(buffer, offset, length));
+    final public List<T> decode(byte [] buffer, int offset, int length) throws IOException {
+        return decode(new IconInputStream(new ByteArrayInputStream(buffer, offset, length)));
     }
 
-    private static class IconInfo {
+    private static class IconInfo implements Comparable<IconInfo> {
         final private int imageNumber;
         final private int dataSize;
         final private int dataOffset;
@@ -46,21 +49,25 @@ abstract public class BaseIcoDecoder<T> {
             this.dataSize = dataSize;
             this.dataOffset = dataOffset;
         }
+
+        @Override
+        public int compareTo(IconInfo o) {
+            return dataOffset - o.dataOffset;
+        }
     }
 
-    private List<T> decode(Buffer buffer) {
+    private List<T> decode(IconInputStream iconInputStream) throws IOException {
 
-        if(buffer.int16() != 0) {
+        if(iconInputStream.readShortLE() != 0) {
             throw new IllegalArgumentException("first WORD must be 0");
         }
 
-        int type = buffer.int16();
+        int type = iconInputStream.readShortLE();
         if(type != ICON && type != CURSOR)
             throw new IllegalArgumentException("second WORD must be 0 or 1");
 
-        int numberOfImages = buffer.int16();
+        int numberOfImages = iconInputStream.readShortLE();
 
-        List<T> result = new ArrayList<>(numberOfImages);
         List<IconInfo> icons = new ArrayList<>(numberOfImages);
 
         for (int currentImage = 0; currentImage < numberOfImages; ++currentImage) {
@@ -70,34 +77,48 @@ abstract public class BaseIcoDecoder<T> {
             //    - width, height, number of colors, and reserved
             //    - (for ICO) planes and bpp information
             //    - (for CUR) hotspot coordinates
-            buffer.skip(8);
+            iconInputStream.skipFully(8);
 
-            int dataSize = buffer.int32();
-            int dataOffset = buffer.int32();
+            int dataSize = iconInputStream.readIntLE();
+            int dataOffset = iconInputStream.readIntLE();
 
             icons.add(new IconInfo(currentImage, dataSize, dataOffset));
         }
+
+        Collections.sort(icons);
+        List<T> result = new ArrayList<>(Collections.<T>nCopies(numberOfImages, null));
+
 
         for(IconInfo iconInfo: icons) {
             int currentImage = iconInfo.imageNumber;
             int dataOffset = iconInfo.dataOffset;
             int dataSize = iconInfo.dataSize;
 
+            int skip = dataOffset - iconInputStream.getOffset();
+            if(skip < 0) {
+                throw new IOException("past start of the icon");
+            }
+            if(skip > 0) {
+                iconInputStream.skipFully(skip);
+            }
+
             try {
                 System.out.println("IMG" + currentImage + ": offset = " + dataOffset + ", size: " + dataSize);
 
-                int magic = buffer.int32(dataOffset);
+                int magic = iconInputStream.readIntLE();
+                iconInputStream.unreadIntLE(magic);
 
-                BufferDecoder<T> imageDecoder = getImageDecoder(magic);
+                ImageDecoder<T> imageDecoder = getImageDecoder(magic);
 
                 if (imageDecoder == null) {
                     throw new IllegalArgumentException("unknown magic: " + Integer.toHexString(magic));
                 }
-                result.add(imageDecoder.decodeImage(buffer.slice(dataOffset, dataSize)));
+                result.set(currentImage, imageDecoder.decodeImage(iconInputStream));
             } catch(IllegalArgumentException ex) {
                 throw new IllegalArgumentException("Pixmap #" + currentImage + ": " + ex.getMessage(), ex);
             }
         }
+        iconInputStream.close();
         return result;
     }
 }

@@ -7,7 +7,7 @@ import java.awt.image.*;
 import java.io.IOException;
 import java.util.Iterator;
 
-public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
+public class AwtIconLoader extends BaseIcoReader<BufferedImage> {
     private static AwtIconLoader INSTANCE = new AwtIconLoader();
 
     public static AwtIconLoader getInstance() { return INSTANCE; }
@@ -53,9 +53,9 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
     }
 
 
-    private BufferedImage readImage(ImageReader imageReader, Buffer buffer) {
+    private BufferedImage readImage(ImageReader imageReader, IconInputStream iconInputStream) {
         try {
-            ImageInputStream input = ImageIO.createImageInputStream(buffer.toInputStream());
+            ImageInputStream input = ImageIO.createImageInputStream(iconInputStream);
             imageReader.setInput(input);
             return imageReader.read(0);
         } catch (IOException e) {
@@ -71,27 +71,27 @@ public class AwtIconLoader extends BaseIcoDecoder<BufferedImage> {
     });
 
 
-    private static final BufferDecoder<BufferedImage> BMP_LOADER = new BufferDecoder<BufferedImage>() {
+    private static final ImageDecoder<BufferedImage> BMP_LOADER = new ImageDecoder<BufferedImage>() {
         @Override
-        public BufferedImage decodeImage(Buffer buffer) {
-            return BMP_DECODER.decodeImage(buffer).image;
+        public BufferedImage decodeImage(IconInputStream iconInputStream) throws IOException {
+            return BMP_DECODER.decodeImage(iconInputStream).image;
         }
     };
 
     @Override
-    protected BufferDecoder<BufferedImage> getImageDecoder(int magic) {
-        if(magic == BufferDecoder.BMP_MAGIC) return BMP_LOADER;
-        if(magic == BufferDecoder.PNG_MAGIC) {
+    protected ImageDecoder<BufferedImage> getImageDecoder(int magic) {
+        if(magic == ImageDecoder.BMP_MAGIC) return BMP_LOADER;
+        if(magic == ImageDecoder.PNG_MAGIC) {
 
             final ImageReader imageReader = getPngReader();
             if(imageReader == null) {
                 return null;
             }
 
-            return new BufferDecoder<BufferedImage>() {
+            return new ImageDecoder<BufferedImage>() {
                 @Override
-                public BufferedImage decodeImage(Buffer buffer) {
-                    return readImage(imageReader, buffer);
+                public BufferedImage decodeImage(IconInputStream iconInputStream) {
+                    return readImage(imageReader, iconInputStream);
                 }
             };
         }

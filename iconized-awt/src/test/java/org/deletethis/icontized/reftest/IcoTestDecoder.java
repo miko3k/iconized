@@ -21,7 +21,11 @@ public class IcoTestDecoder {
             throw new AssertionError(ex);
         }
 
-        return AwtIconLoader.getInstance().decode(bytes);
+        try {
+            return AwtIconLoader.getInstance().decode(bytes);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
     }
 }

@@ -19,9 +19,11 @@
  */
 package org.deletethis.iconized;
 
-public interface BufferDecoder<T> {
+import java.io.IOException;
+
+public interface ImageDecoder<T> {
     int BMP_MAGIC = 40;
     int PNG_MAGIC = 0x474E5089;
 
-    T decodeImage(Buffer buffer);
+    T decodeImage(IconInputStream iconInputStream) throws IOException;
 }
