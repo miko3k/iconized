@@ -12,21 +12,22 @@ class TestCaseRegistry {
     private static byte [] getResource(String directory, String file) {
         String resourceName = directory + '/' + file;
 
-        InputStream resourceAsStream = TestCaseRegistry.class.getResourceAsStream(resourceName);
-        if(resourceAsStream == null) {
+        InputStream inputStream = TestCaseRegistry.class.getResourceAsStream(resourceName);
+        if(inputStream == null) {
             throw new IllegalStateException("unable to find resource '" + resourceName + "'");
         }
         byte[] bytes;
         try {
-            bytes = IOUtils.toByteArray(resourceAsStream);
+            bytes = IOUtils.toByteArray(inputStream);
+            inputStream.close();
         } catch (IOException ex) {
             throw new AssertionError(ex);
         }
         return bytes;
     }
 
-    private final List<FailTestCase> failTestCases = new ArrayList<>();
-    private final List<SuccessTestCase> successTestCases = new ArrayList<>();
+    private final TestCases<FailTestCase> failTestCases = new TestCases<>();
+    private final TestCases<SuccessTestCase> successTestCases = new TestCases<>();
 
     void ok(final String directory, final String icoFile, String ... pngFiles) {
         final List<byte[]> pngFilesData = new ArrayList<>();
@@ -46,7 +47,7 @@ class TestCaseRegistry {
 
             @Override
             public String getName() {
-                return directory + ":" + icoFile;
+                return directory + "/" + icoFile;
             }
 
             @Override
@@ -71,7 +72,7 @@ class TestCaseRegistry {
 
             @Override
             public String getName() {
-                return directory + ":" + icoFile;
+                return directory + "/" + icoFile;
             }
 
             @Override
@@ -86,11 +87,11 @@ class TestCaseRegistry {
         });
     }
 
-    List<FailTestCase> getFailTestCases() {
+    TestCases<FailTestCase> getFailTestCases() {
         return failTestCases;
     }
 
-    List<SuccessTestCase> getSuccessTestCases() {
+    TestCases<SuccessTestCase> getSuccessTestCases() {
         return successTestCases;
     }
 

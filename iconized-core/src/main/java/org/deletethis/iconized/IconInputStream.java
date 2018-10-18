@@ -1,46 +1,104 @@
+/*
+ * Iconized - an .ico parser in Java
+ *
+ * Copyright (c) 2018, Peter Hanula
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package org.deletethis.iconized;
 
 import java.io.EOFException;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class IconInputStream extends InputStream {
+/**
+ * An improved {@link InputStream} for reading icons.
+ *
+ * It provides several features:
+ * <ul>
+ *    <li>Can read short and int values (similar to {@link java.io.DataInputStream}, but in little-endian
+ *    <li>Can push back several input bytes (similar to {@link java.io.PushbackInputStream}
+ *    <li>Tracks current offset from beginning of stream
+ * </ul>
+ */
+public class IconInputStream extends FilterInputStream {
     private static final int PUSH_BACK_BUFFER_SIZE = 8;
 
-    private final InputStream stream;
     private final byte [] pushBackBuffer = new byte[PUSH_BACK_BUFFER_SIZE];
 
     private int offset = 0;
     private int pushBackBufferUse;
 
-    IconInputStream(InputStream stream) {
-        this.stream = stream;
+    IconInputStream(InputStream in) {
+        super(in);
     }
 
     @Override
     public int read() throws IOException {
-        if(pushBackBufferUse > 0) {
-            ++offset;
-            return pushBackBuffer[--pushBackBufferUse];
-        } else {
-            int result = stream.read();
-            if (result >= 0)
-                ++offset;
+        int result;
 
-            return result;
+        if(pushBackBufferUse > 0) {
+            result = (pushBackBuffer[PUSH_BACK_BUFFER_SIZE-pushBackBufferUse] & 0xFF);
+            --pushBackBufferUse;
+        } else {
+            result = in.read();
         }
+
+        if (result >= 0)
+            ++offset;
+
+        return result;
     }
 
-    public void unreadInt(byte b) {
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        if (len == 0) {
+            return 0;
+        }
+        if (len < 0) {
+            throw new IllegalArgumentException();
+        }
+        int result;
+        if(pushBackBufferUse > 0) {
+            if(len >= pushBackBufferUse) {
+                len = pushBackBufferUse;
+            }
+            System.arraycopy(pushBackBuffer, PUSH_BACK_BUFFER_SIZE-pushBackBufferUse, b, off, len);
+
+            pushBackBufferUse -= len;
+            result = len;
+        } else {
+            result = in.read(b, off, len);
+        }
+        offset += result;
+        return result;
+    }
+
+    public void unread(byte b) {
+        pushBackBufferUse++;
+        pushBackBuffer[PUSH_BACK_BUFFER_SIZE-pushBackBufferUse] = b;
+
         --offset;
-        pushBackBuffer[pushBackBufferUse++] = b;
     }
 
     public void unreadIntLE(int value) {
-        unreadInt((byte)(value >> 24));
-        unreadInt((byte)(value >> 16));
-        unreadInt((byte)(value >> 8));
-        unreadInt((byte)(value));
+        unread((byte)(value >> 24));
+        unread((byte)(value >> 16));
+        unread((byte)(value >> 8));
+        unread((byte)(value));
     }
 
     public int getOffset() {
@@ -60,7 +118,7 @@ public class IconInputStream extends InputStream {
         return (byte)(ch);
     }
 
-    public int readShortLE() throws IOException {
+    public short readIntelShort() throws IOException {
         int ch1 = read();
         int ch2 = read();
         if ((ch1 | ch2) < 0)
@@ -68,7 +126,7 @@ public class IconInputStream extends InputStream {
         return (short)((ch2 << 8) + (ch1));
     }
 
-    public int readIntLE() throws IOException {
+    public int readIntelInt() throws IOException {
         int ch1 = read();
         int ch2 = read();
         int ch3 = read();

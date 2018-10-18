@@ -46,7 +46,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
     }
 
     public T decodeImage(IconInputStream in) throws IOException {
-        int infoHeaderSize = in.readIntLE();
+        int infoHeaderSize = in.readIntelInt();
         if (infoHeaderSize != ImageDecoder.BMP_MAGIC) {
             throw new BadIconFormatException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
@@ -67,9 +67,9 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
 
             for (int y = 0; y < header.getHeight(); y++) {
                 for (int x = 0; x < header.getWidth(); x++) {
-                    int a = andMask.getRGB(x, y);
+                    int a = andMask.getARGB(x, y);
                     if(a == AND_1) {
-                        xor.setRGB(x, y, 0);
+                        xor.setARGB(x, y, 0);
                     }
                 }
             }
@@ -108,19 +108,19 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
      */
     private InfoHeader readInfoHeader(IconInputStream in) throws IOException {
         //Width
-        int width = in.readIntLE();
+        int width = in.readIntelInt();
 
         //Height
-        int height = in.readIntLE();
+        int height = in.readIntelInt();
 
         //Planes (=1)
         in.skipFully(2);
 
         //Bit count
-        int bpp = in.readShortLE();
+        int bpp = in.readIntelShort();
 
         //Compression
-        int compression = in.readIntLE();
+        int compression = in.readIntelInt();
         //Image size - compressed size of image or 0 if Compression = 0
         in.skipFully(4);
 
@@ -259,7 +259,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
                 int v = line[i];
                 int b = x % 8;
                 int index = getBit(v, b);
-                img.setRGB(x, y, colorTable[index]);
+                img.setARGB(x, y, colorTable[index]);
             }
         }
     }
@@ -295,7 +295,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
                 int i = x % 2;
                 int n = line[b];
                 int index = getNibble(n, i);
-                img.setRGB(x, y, colorTable[index]);
+                img.setARGB(x, y, colorTable[index]);
             }
         }
     }
@@ -321,9 +321,9 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
             for (int x = 0; x < width; x++) {
                 int b = lis.readByte();
                 //int clr = c[b];
-                //img.setRGB(x, y, clr);
+                //img.setARGB(x, y, clr);
                 //set sample (colour index) for pixel
-                img.setRGB(x, y, colorTable[b&0xFF]);
+                img.setARGB(x, y, colorTable[b&0xFF]);
             }
 
             lis.skipFully(padBytesPerLine);
@@ -357,7 +357,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
 
                 int color = createColor(r, g, b);
 
-                img.setRGB(x, y, color);
+                img.setARGB(x, y, color);
             }
             lis.skipFully(padBytesPerLine);
         }
@@ -380,7 +380,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
                 byte g = lis.readByte();
                 byte r = lis.readByte();
                 byte a = lis.readByte();
-                img.setRGB(x, y, createColor(r, g, b, a));
+                img.setARGB(x, y, createColor(r, g, b, a));
             }
         }
     }

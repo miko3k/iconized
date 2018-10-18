@@ -1,4 +1,6 @@
+apply plugin: 'java-library'
+
 dependencies {
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile project(':iconized-core')
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    api project(':iconized-core')
 }

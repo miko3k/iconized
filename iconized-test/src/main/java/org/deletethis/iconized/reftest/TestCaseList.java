@@ -136,11 +136,11 @@ public class TestCaseList {
         R.fail(DIR_CURRUPTED, "invalid-compression-RLE8.ico", BadIconFormatException.class);
     }
 
-    public static List<FailTestCase> getFailTestCases() {
+    public static TestCases<FailTestCase> getFailTestCases() {
         return R.getFailTestCases();
     }
 
-    public static List<SuccessTestCase> getSuccessTestCases() {
+    public static TestCases<SuccessTestCase> getSuccessTestCases() {
         return R.getSuccessTestCases();
     }
 }

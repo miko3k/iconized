@@ -22,6 +22,7 @@ package org.deletethis.iconized;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,8 +37,13 @@ abstract public class BaseIcoReader<T> {
     }
 
     final public List<T> decode(byte [] buffer, int offset, int length) throws IOException {
-        return decode(new IconInputStream(new ByteArrayInputStream(buffer, offset, length)));
+        return decode(new ByteArrayInputStream(buffer, offset, length));
     }
+
+    final public List<T> decode(InputStream inputStream) throws IOException {
+        return decode(new IconInputStream(inputStream));
+    }
+
 
     private static class IconInfo implements Comparable<IconInfo> {
         final private int imageNumber;
@@ -56,17 +62,17 @@ abstract public class BaseIcoReader<T> {
         }
     }
 
-    private List<T> decode(IconInputStream iconInputStream) throws IOException {
+    private List<T> decode(IconInputStream stream) throws IOException {
 
-        if(iconInputStream.readShortLE() != 0) {
+        if(stream.readIntelShort() != 0) {
             throw new BadIconFormatException("first WORD must be 0");
         }
 
-        int type = iconInputStream.readShortLE();
+        int type = stream.readIntelShort();
         if(type != ICON && type != CURSOR)
             throw new BadIconFormatException("second WORD must be 0 or 1");
 
-        int numberOfImages = iconInputStream.readShortLE();
+        int numberOfImages = stream.readIntelShort();
 
         List<IconInfo> icons = new ArrayList<>(numberOfImages);
 
@@ -77,10 +83,10 @@ abstract public class BaseIcoReader<T> {
             //    - width, height, number of colors, and reserved
             //    - (for ICO) planes and bpp information
             //    - (for CUR) hotspot coordinates
-            iconInputStream.skipFully(8);
+            stream.skipFully(8);
 
-            int dataSize = iconInputStream.readIntLE();
-            int dataOffset = iconInputStream.readIntLE();
+            int dataSize = stream.readIntelInt();
+            int dataOffset = stream.readIntelInt();
 
             icons.add(new IconInfo(currentImage, dataSize, dataOffset));
         }
@@ -88,37 +94,40 @@ abstract public class BaseIcoReader<T> {
         Collections.sort(icons);
         List<T> result = new ArrayList<>(Collections.<T>nCopies(numberOfImages, null));
 
-
         for(IconInfo iconInfo: icons) {
-            int currentImage = iconInfo.imageNumber;
+            int imageNumber = iconInfo.imageNumber;
             int dataOffset = iconInfo.dataOffset;
             int dataSize = iconInfo.dataSize;
 
-            int skip = dataOffset - iconInputStream.getOffset();
+            System.out.println("ICN: " + imageNumber + ", off: " + dataOffset + ", size: " + dataSize + ", so: " + stream.getOffset());
+
+            int streamOffset = stream.getOffset();
+            int skip = dataOffset - streamOffset;
             if(skip < 0) {
-                throw new IOException("past start of the icon");
+                throw new IOException("icon starts at " + dataOffset + ", but " + streamOffset + " bytes have bean read");
             }
             if(skip > 0) {
-                iconInputStream.skipFully(skip);
+                stream.skipFully(skip);
             }
 
             try {
-                System.out.println("IMG" + currentImage + ": offset = " + dataOffset + ", size: " + dataSize);
-
-                int magic = iconInputStream.readIntLE();
-                iconInputStream.unreadIntLE(magic);
+                int magic = stream.readIntelInt();
+                stream.unreadIntLE(magic);
 
                 ImageDecoder<T> imageDecoder = getImageDecoder(magic);
 
                 if (imageDecoder == null) {
                     throw new BadIconFormatException("unknown magic: " + Integer.toHexString(magic));
                 }
-                result.set(currentImage, imageDecoder.decodeImage(iconInputStream));
+
+                T image = imageDecoder.decodeImage(stream);
+
+                result.set(imageNumber, image);
             } catch(BadIconFormatException ex) {
-                throw new BadIconFormatException("Icon #" + currentImage + ": " + ex.getMessage(), ex);
+                throw new BadIconFormatException("Icon #" + imageNumber + ": " + ex.getMessage(), ex);
             }
         }
-        iconInputStream.close();
+        stream.close();
         return result;
     }
 }

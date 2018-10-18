@@ -23,12 +23,12 @@ public class RefTests {
 
     private void compareImages(BufferedImage ref, BufferedImage icon) {
         // fuck performance!
-        String refsize = ref.getWidth() + " x " + ref.getWidth();
-        String iconsize = icon.getWidth() + " x " + icon.getWidth();
+        String refDimensions = ref.getWidth() + " x " + ref.getWidth();
+        String iconDimensions = icon.getWidth() + " x " + icon.getWidth();
 
-        if (!refsize.equals(iconsize))
+        if (!refDimensions.equals(iconDimensions))
             throw new AssertionError("bad size, expected: "
-                    + refsize + ", actual " + iconsize);
+                    + refDimensions + ", actual " + iconDimensions);
 
 
         for (int y = 0; y < ref.getHeight(); y++) {

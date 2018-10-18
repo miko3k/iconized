@@ -20,7 +20,7 @@ public class RefTestsFail {
     }
 
     @Parameterized.Parameter // first data value (0) is default
-    public /* NOT private */ FailTestCase currentTestCase;
+    public FailTestCase currentTestCase;
 
     @Test
     public void testLoad() {

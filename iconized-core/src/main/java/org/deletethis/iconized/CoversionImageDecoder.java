@@ -19,8 +19,22 @@
  */
 package org.deletethis.iconized;
 
-public interface Pixmap {
-    int getWidth();
-    int getHeight();
-    void setARGB(int x, int y, int rgb);
+import java.io.IOException;
+
+public class CoversionImageDecoder<TMP, T> implements ImageDecoder<T> {
+    public interface Conversion<TMP, T> {
+        T convert(TMP tmp);
+    }
+
+    private final ImageDecoder<TMP> base;
+    private final Conversion<TMP, T> conversion;
+
+    public CoversionImageDecoder(ImageDecoder<TMP> base, Conversion<TMP, T> conversion) {
+        this.base = base;
+        this.conversion = conversion;
+    }
+
+    public T decodeImage(IconInputStream iconInputStream) throws IOException {
+        return conversion.convert(base.decodeImage(iconInputStream));
+    }
 }

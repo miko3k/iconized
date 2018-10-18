@@ -1,5 +1,7 @@
+apply plugin: 'java-library'
+
 dependencies {
-    compile project(':iconized-core')
+    api project(':iconized-core')
     testCompile project(':iconized-test')
 
 }

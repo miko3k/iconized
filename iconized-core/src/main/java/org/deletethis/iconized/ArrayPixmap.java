@@ -22,11 +22,11 @@ package org.deletethis.iconized;
 import java.util.Arrays;
 import java.util.Objects;
 
-final public class ArrayPixmap implements Pixmap {
+public class ArrayPixmap implements Pixmap {
     private final int width, height;
     private int [] data;
 
-    public static PixmapFactory<ArrayPixmap> FACTORY = new PixmapFactory<ArrayPixmap>() {
+    public static final PixmapFactory<ArrayPixmap> FACTORY = new PixmapFactory<ArrayPixmap>() {
         @Override
         public ArrayPixmap createPixmap(int width, int height) {
             return new ArrayPixmap(width, height);
@@ -47,11 +47,7 @@ final public class ArrayPixmap implements Pixmap {
         return height;
     }
 
-    public int[] getData() {
-        return data;
-    }
-
-    public int getRGB(int x, int y) {
+    public int getARGB(int x, int y) {
         int w = width;
         if(x < 0 || x >= w)
             throw new IllegalArgumentException("not withing the buffer");
@@ -62,7 +58,7 @@ final public class ArrayPixmap implements Pixmap {
         return data[w*y+x];
     }
 
-    public void setRGB(int x, int y, int rgb) {
+    public void setARGB(int x, int y, int rgb) {
         int w = width;
         if(x < 0 || x >= w)
             throw new IllegalArgumentException("not withing the buffer");
@@ -93,5 +89,9 @@ final public class ArrayPixmap implements Pixmap {
     @Override
     public String toString() {
         return super.toString() + '{' + width + 'x' + height + '}';
+    }
+
+    public int [] getData() {
+        return data;
     }
 }
