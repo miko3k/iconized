@@ -29,7 +29,6 @@
                     <configuration>
                         <fork>true</fork>
                         <compilerArgs>
-                            <arg>-parameters</arg>
                             <arg>-Xlint</arg>
                         </compilerArgs>
                     </configuration>
