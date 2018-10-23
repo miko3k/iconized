@@ -87,16 +87,16 @@ abstract public class AbstractIcoParser<T> {
         SimpleDataStream data = new SimpleDataStream(stream);
 
         if(data.readIntelShort() != 0) {
-            throw new BadIconFormatException("first WORD must be 0");
+            throw new IcoFormatException("first WORD must be 0");
         }
 
         int type = data.readIntelShort();
         if(type != ICON && type != CURSOR)
-            throw new BadIconFormatException("second WORD must be 0 or 1");
+            throw new IcoFormatException("second WORD must be 0 or 1");
 
         int numberOfImages = data.readIntelShort();
         if(numberOfImages == 0){
-            throw new BadIconFormatException("no icons in this file");
+            throw new IcoFormatException("no icons in this file");
         }
 
         List<IconInfo> icons = new ArrayList<>(numberOfImages);
@@ -151,13 +151,13 @@ abstract public class AbstractIcoParser<T> {
                 T image = imageDecoder.decodeImage(stream);
 
                 result.set(imageNumber, image);
-            } catch(BadIconFormatException ex) {
-                throw new BadIconFormatException("Icon #" + imageNumber + ": " + ex.getMessage(), ex);
+            } catch(IcoFormatException ex) {
+                throw new IcoFormatException("Icon #" + imageNumber + ": " + ex.getMessage(), ex);
             }
         }
         removeNulls(result);
         if(result.isEmpty()){
-            throw new BadIconFormatException("no icon was successfully decoded");
+            throw new IcoFormatException("no icon was successfully decoded");
         }
 
         return result;

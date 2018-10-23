@@ -21,14 +21,14 @@ package org.deletethis.iconized;
 
 import java.io.IOException;
 
-public class BadIconFormatException extends IOException {
+public class IcoFormatException extends IOException {
     static final long serialVersionUID = 2880826308501782032L;
 
-    public BadIconFormatException(String message) {
+    public IcoFormatException(String message) {
         super(message);
     }
 
-    public BadIconFormatException(String message, Throwable cause) {
+    public IcoFormatException(String message, Throwable cause) {
         super(message, cause);
     }
 }

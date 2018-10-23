@@ -31,36 +31,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-public class IcoParser extends AbstractIcoParser<BufferedImage> {
+public class IcoParser extends BaseIcoParser<BufferedImage> {
     private static IcoParser INSTANCE = new IcoParser();
 
     public static IcoParser getInstance() { return INSTANCE; }
 
     private IcoParser() { }
 
-    private ImageReader getPngReader() {
-        Iterator<ImageReader> itr = ImageIO.getImageReadersByFormatName("png");
-        if (itr.hasNext()) {
-            return itr.next();
-        } else {
-            return null;
-        }
-    }
-
-    private BufferedImage readImage(ImageReader imageReader, InputStream iconInputStream) {
-        try {
-            // we do not use ImageIO.createImageInputStream, because it creates cache file on the hard drive
-            ImageInputStream input = new MemoryCacheImageInputStream(iconInputStream);
-            imageReader.setInput(input);
-            return imageReader.read(0);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Invalid PNG file: " + e.getMessage(), e);
-        }
-    }
-
     private static class AwtImage implements Image {
         private final int [] data;
         private final BufferedImage bufferedImage;
+        // attributes are not strictly necessary, as they are redundant with getWidth/getHeight on BufferedImage
+        // but we keep them, because we access them a lot and it might speed up something (or not... but they do
+        // not hurt)
         private final int width, height;
 
         AwtImage(int width, int height) {
@@ -87,39 +70,36 @@ public class IcoParser extends AbstractIcoParser<BufferedImage> {
         }
     }
 
-
-    private static final ImageDecoder<BufferedImage> BMP_LOADER = new ImageDecoder<BufferedImage>() {
-        private final BitmapDecoder<AwtImage> decoder = new BitmapDecoder<>(new ImageFactory<AwtImage>() {
-            @Override
-            public AwtImage createImage(int width, int height) {
-                return new AwtImage(width, height);
-            }
-        });
-
+    private static final BitmapDecoder<AwtImage> BMP_DECODER = new BitmapDecoder<>(new ImageFactory<AwtImage>() {
         @Override
-        public BufferedImage decodeImage(InputStream stream) throws IOException {
-            AwtImage awtImage = decoder.decodeImage(stream);
-            return awtImage.bufferedImage;
+        public AwtImage createImage(int width, int height) {
+            return new AwtImage(width, height);
         }
-    };
+    });
 
     @Override
-    protected ImageDecoder<BufferedImage> getImageDecoder(int magic) {
-        if(magic == BMP_MAGIC) return BMP_LOADER;
-        if(magic == PNG_MAGIC) {
+    protected BufferedImage decodeBmp(InputStream inputStream) throws IOException {
+        AwtImage awtImage = BMP_DECODER.decodeImage(inputStream);
+        return awtImage.bufferedImage;
+    }
 
-            final ImageReader imageReader = getPngReader();
-            if(imageReader == null) {
-                return null;
-            }
-
-            return new ImageDecoder<BufferedImage>() {
-                @Override
-                public BufferedImage decodeImage(InputStream stream) {
-                    return readImage(imageReader, stream);
-                }
-            };
+    @Override
+    protected BufferedImage decodePng(InputStream inputStream) throws IOException {
+        ImageReader imageReader = null;
+        Iterator<ImageReader> itr = ImageIO.getImageReadersByFormatName("png");
+        if (itr.hasNext()) {
+            imageReader = itr.next();
         }
-        return null;
+        if(imageReader == null) {
+            throw  new IOException("unable to find PNG decoder");
+        }
+        try {
+            // we do not use ImageIO.createImageInputStream, because it creates cache file on the hard drive
+            ImageInputStream input = new MemoryCacheImageInputStream(inputStream);
+            imageReader.setInput(input);
+            return imageReader.read(0);
+        } catch (IOException e) {
+            throw new IcoFormatException("Invalid PNG file: " + e.getMessage(), e);
+        }
     }
 }

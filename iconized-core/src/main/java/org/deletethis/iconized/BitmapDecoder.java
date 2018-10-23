@@ -51,7 +51,7 @@ public class BitmapDecoder<T extends Image> implements ImageDecoder<T> {
 
         int infoHeaderSize = in.readIntelInt();
         if (infoHeaderSize != AbstractIcoParser.BMP_MAGIC) {
-            throw new BadIconFormatException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
+            throw new IcoFormatException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
 
         // read header
@@ -210,7 +210,7 @@ public class BitmapDecoder<T extends Image> implements ImageDecoder<T> {
             return pm;
         }
 
-        throw new BadIconFormatException("Unrecognized bitmap format: bpp = " + bpp + ", compression = " + compression);
+        throw new IcoFormatException("Unrecognized bitmap format: bpp = " + bpp + ", compression = " + compression);
     }
 
     /**

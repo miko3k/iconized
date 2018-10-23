@@ -1,8 +1,6 @@
 package org.deletethis.iconized.reftest;
 
-import org.deletethis.iconized.BadIconFormatException;
-
-import java.util.List;
+import org.deletethis.iconized.IcoFormatException;
 
 public class TestCaseList {
 
@@ -141,10 +139,10 @@ public class TestCaseList {
         R.ok(DIR_MOZPNG, "ico-size-7x7-png.ico", "ico-size-7x7-png.png");
         R.ok(DIR_MOZPNG, "transparent-png.ico", "transparent-png.png");
     
-        R.fail(DIR_CURRUPTED, "invalid-bpp.ico", BadIconFormatException.class);
-        R.fail(DIR_CURRUPTED, "invalid-compression.ico", BadIconFormatException.class);
-        R.fail(DIR_CURRUPTED, "invalid-compression-RLE4.ico", BadIconFormatException.class);
-        R.fail(DIR_CURRUPTED, "invalid-compression-RLE8.ico", BadIconFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-bpp.ico", IcoFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-compression.ico", IcoFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-compression-RLE4.ico", IcoFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-compression-RLE8.ico", IcoFormatException.class);
     }
 
     public static TestCases<FailTestCase> getFailTestCases() {
