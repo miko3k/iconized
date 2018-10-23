@@ -121,17 +121,14 @@ abstract public class AbstractIcoParser<T> {
         ArrayList<T> result = new ArrayList<>(Collections.<T>nCopies(numberOfImages, null));
 
         for(IconInfo iconInfo: icons) {
-            if(iconInfo == null) {
-                continue;
-            }
-
             int imageNumber = iconInfo.imageNumber;
             int dataOffset = iconInfo.dataOffset;
 
             long streamOffset = stream.getOffset();
             long skip = dataOffset - streamOffset;
             if(skip < 0) {
-                throw new IOException("icon starts at " + dataOffset + ", but " + streamOffset + " bytes have bean read");
+                // ignore this icon, we probably read too much during last image
+                continue;
             }
             if(skip > 0) {
                 data.skipFully((int)skip);
@@ -151,9 +148,7 @@ abstract public class AbstractIcoParser<T> {
                     continue;
                 }
 
-                IconInputStream substream = stream.substream(iconInfo.dataSize);
-
-                T image = imageDecoder.decodeImage(substream);
+                T image = imageDecoder.decodeImage(stream);
 
                 result.set(imageNumber, image);
             } catch(BadIconFormatException ex) {
