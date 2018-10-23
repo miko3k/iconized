@@ -30,20 +30,40 @@ This project aims to provide:
 
 ## Usage
 
-AWT (stream needs to be closed afterwards)
+AWT
 ```java
 import org.deletethis.iconized.awt.IcoParser;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 
-List<BufferedImage> images = IcoParser.getInstance().getIcons(Foo.class.getResourceAsStream("bundled_icon.ico"));
+class Main {
+    public static void main(String[] args) throws IOException{
+        try(InputStream stream = Foo.class.getResourceAsStream("bundled_icon.ico")) {
+            List<BufferedImage> images = IcoParser.getInstance().getIcons(stream);
+        }
+    }    
+}
+
 ```
 
-Android (do not forget to close the stream afterwards!)
+Android
 ```java
 import org.deletethis.iconized.android.IcoParser;
 import android.graphics.Bitmap;
+import android.app.Activity;
+import java.io.InputStream;
 
-List<Bitmap> images = IcoParser.getInstance().getIcons(getResources().openRawResource(R.raw.resource_id));
+class MyActity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try(InputStream stream = getResources().openRawResource(R.raw.resource_id)) {
+            List<Bitmap> images = IcoParser.getInstance().getIcons();
+        } catch(IOException ex) {
+            throw new IllegalStateException("Cannot open resource");
+        }
+    }
+} 
 ```
 
 
