@@ -23,10 +23,10 @@ package org.deletethis.iconized;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class IconBmpDecoder<T extends Image> implements ImageDecoder<T> {
+public class BitmapDecoder<T extends Image> implements ImageDecoder<T> {
     private final ImageFactory<T> imageFactory;
 
-    public IconBmpDecoder(ImageFactory<T> imageFactory) {
+    public BitmapDecoder(ImageFactory<T> imageFactory) {
         this.imageFactory = imageFactory;
     }
 

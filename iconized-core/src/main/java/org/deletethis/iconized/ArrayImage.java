@@ -72,17 +72,20 @@ public class ArrayImage implements Image {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ArrayImage)) return false;
-        ArrayImage pixmap = (ArrayImage) o;
-        return width == pixmap.width &&
-                height == pixmap.height &&
-                Arrays.equals(data, pixmap.data);
+        ArrayImage other = (ArrayImage) o;
+        return width == other.width &&
+                height == other.height &&
+                Arrays.equals(data, other.data);
     }
 
+    /**
+     * Returns a hashcode. Currently only dimensions are used to calculate hash value, because they
+     * are only immutable properties. In addition, one must be quite insane in order use use this as a key
+     * in hash table.
+     */
     @Override
     public int hashCode() {
-        int result = width + 31 * height;
-        result = 31 * result + Arrays.hashCode(data);
-        return result;
+        return width + 31 * height;
     }
 
     @Override

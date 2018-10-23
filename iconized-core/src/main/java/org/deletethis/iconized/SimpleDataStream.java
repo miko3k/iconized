@@ -28,7 +28,7 @@ import java.io.InputStream;
  * A stream which provides similar functionality to {@link java.io.DataInputStream}, but reads both little and big
  * endian values.
  *
- * It reads from underlying stream strictly only when needed, does not do any buffering on its own. This allows
+ * It reads from underlying stream strictly when needed, does not do any buffering on its own. This allows
  * to layer it cleanly on top of {@link IconInputStream}.
  */
 public class SimpleDataStream extends FilterInputStream {

@@ -30,19 +30,19 @@ public class ArrayImageTests {
 
     @Test
     public void tests() {
-        ArrayImage pixmap = new ArrayImage(4,4);
+        ArrayImage image = new ArrayImage(4,4);
 
-        Assert.assertEquals(pixmap, new ArrayImage(4, 4));
-        Assert.assertNotEquals(pixmap, new ArrayImage(5, 4));
-        Assert.assertEquals(pixmap.hashCode(), new ArrayImage(4, 4).hashCode());
+        Assert.assertEquals(image, new ArrayImage(4, 4));
+        Assert.assertNotEquals(image, new ArrayImage(5, 4));
+        Assert.assertEquals(image.hashCode(), new ArrayImage(4, 4).hashCode());
 
-        Assert.assertEquals(0, pixmap.getData()[0]);
-        Assert.assertEquals("ArrayImage(4x4)", pixmap.toString());
-        pixmap.setARGB(0,0,1);
+        Assert.assertEquals(0, image.getData()[0]);
+        Assert.assertEquals("ArrayImage(4x4)", image.toString());
+        image.setARGB(0,0,1);
 
-        Assert.assertEquals(1, pixmap.getARGB(0, 0));
-        pixmap.setARGB(0,0,0);
-        Assert.assertEquals(0, pixmap.getARGB(0, 0));
+        Assert.assertEquals(1, image.getARGB(0, 0));
+        image.setARGB(0,0,0);
+        Assert.assertEquals(0, image.getARGB(0, 0));
 
     }
 

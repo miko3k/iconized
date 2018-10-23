@@ -58,16 +58,16 @@ public class IcoParser extends AbstractIcoParser<BufferedImage> {
         }
     }
 
-    private static class BufferedImageImage implements Image {
+    private static class AwtImage implements Image {
         private final int [] data;
-        private final BufferedImage image;
+        private final BufferedImage bufferedImage;
         private final int width, height;
 
-        BufferedImageImage(int width, int height) {
+        AwtImage(int width, int height) {
             this.width = width;
             this.height = height;
-            this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            this.data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+            this.bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            this.data = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
         }
 
 
@@ -89,17 +89,17 @@ public class IcoParser extends AbstractIcoParser<BufferedImage> {
 
 
     private static final ImageDecoder<BufferedImage> BMP_LOADER = new ImageDecoder<BufferedImage>() {
-        private final IconBmpDecoder<BufferedImageImage> decoder = new IconBmpDecoder<>(new ImageFactory<BufferedImageImage>() {
+        private final BitmapDecoder<AwtImage> decoder = new BitmapDecoder<>(new ImageFactory<AwtImage>() {
             @Override
-            public BufferedImageImage createImage(int width, int height) {
-                return new BufferedImageImage(width, height);
+            public AwtImage createImage(int width, int height) {
+                return new AwtImage(width, height);
             }
         });
 
         @Override
         public BufferedImage decodeImage(InputStream stream) throws IOException {
-            BufferedImageImage bufferedImagePixmap = decoder.decodeImage(stream);
-            return bufferedImagePixmap.image;
+            AwtImage awtImage = decoder.decodeImage(stream);
+            return awtImage.bufferedImage;
         }
     };
 
