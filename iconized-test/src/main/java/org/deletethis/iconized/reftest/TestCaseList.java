@@ -17,6 +17,7 @@ public class TestCaseList {
         String DIR_32BPP = "mozilla/ico-bmp-32bpp";
         String DIR_ORDER = "order";
         String DIR_MIXED = "mozilla/ico-mixed";
+        String DIR_MOZPNG = "mozilla/ico-png";
         String DIR_PNG = "png";
         String DIR_CURRUPTED = "mozilla/ico-bmp-corrupted";
 
@@ -129,6 +130,16 @@ public class TestCaseList {
         R.ok(DIR_ORDER, "icon_gap.ico", "icon-2.png", "icon-1.png");
 
         R.ok(DIR_PNG, "2png.ico", "2png1.png", "2png2.png");
+
+        R.ok(DIR_MOZPNG, "ico-size-1x1-png.ico", "ico-size-1x1-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-256x256-png.ico", "ico-size-256x256-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-2x2-png.ico", "ico-size-2x2-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-3x3-png.ico", "ico-size-3x3-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-4x4-png.ico", "ico-size-4x4-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-5x5-png.ico", "ico-size-5x5-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-6x6-png.ico", "ico-size-6x6-png.png");
+        R.ok(DIR_MOZPNG, "ico-size-7x7-png.ico", "ico-size-7x7-png.png");
+        R.ok(DIR_MOZPNG, "transparent-png.ico", "transparent-png.png");
     
         R.fail(DIR_CURRUPTED, "invalid-bpp.ico", BadIconFormatException.class);
         R.fail(DIR_CURRUPTED, "invalid-compression.ico", BadIconFormatException.class);
