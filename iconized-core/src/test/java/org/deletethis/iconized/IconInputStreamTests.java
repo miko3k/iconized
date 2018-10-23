@@ -32,79 +32,6 @@ public class IconInputStreamTests {
         Assert.assertEquals(-1, in.read());
     }
 
-    @Test
-    public void simplesub() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0,2)));
-        // two substreams!
-        IconInputStream sub = in.substream(1).substream(1);
-
-        Assert.assertEquals(0, sub.read());
-        Assert.assertEquals(-1, sub.read());
-        Assert.assertEquals(1, in.read());
-        Assert.assertEquals(-1, in.read());
-    }
-    @Test
-    public void simplesub2() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
-        IconInputStream sub = in.substream(2);
-        byte [] buf = new byte[5];
-        Assert.assertEquals(1, sub.read(buf, 0, 1));
-        Assert.assertEquals(0, buf[0]);
-        Assert.assertEquals(1, sub.read(buf, 0, 1));
-        Assert.assertEquals(1, buf[0]);
-        Assert.assertEquals(-1, sub.read(buf, 0, 1));
-    }
-
-    @Test
-    public void simpleSkip2() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
-        IconInputStream sub = in.substream(2);
-        byte [] buf = new byte[5];
-        Assert.assertEquals(1, sub.skip(1));
-        Assert.assertEquals(1, sub.skip(1));
-        Assert.assertEquals(0, sub.skip(1));
-    }
-    @Test
-    public void simpleSkip() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0,2)));
-        IconInputStream sub = in.substream(1);
-
-        Assert.assertEquals(1, sub.getBoundary());
-        Assert.assertEquals(-1, in.getBoundary());
-
-        Assert.assertEquals(1, sub.skip(20));
-        Assert.assertEquals(0, sub.skip(20));
-        Assert.assertEquals(1, in.skip(20));
-        Assert.assertEquals(0, in.skip(20));
-
-        sub.close();
-        in.close();
-    }
-
-    @Test
-    public void bunchOfBufferedReads() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
-        byte[] bytes = new byte[20];
-        IconInputStream sub = in.substream(20);
-        Assert.assertEquals(2, sub.read(bytes));
-        Assert.assertEquals(-1, sub.read(bytes));
-        Assert.assertEquals(-1, in.read(bytes));
-        in.pushBack((byte)5);
-        Assert.assertEquals(1, in.read(bytes));
-        Assert.assertEquals(-1, in.read(bytes));
-        sub.pushBack((byte)5);
-        Assert.assertEquals(1, in.read(bytes));
-        Assert.assertEquals(-1, in.read(bytes));
-    }
-
-    @Test
-    public void emptySubstream() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
-        byte[] bytes = new byte[20];
-        IconInputStream sub = in.substream(0);
-        Assert.assertEquals(-1, sub.read(bytes));
-        Assert.assertEquals(2, in.read(bytes));
-    }
 
     @Test
     public void zeroLength() throws IOException{
@@ -119,18 +46,6 @@ public class IconInputStreamTests {
         IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
         byte[] bytes = new byte[20];
         Assert.assertEquals(0, in.read(bytes, 4, -1));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void negativeSubstreamLength() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
-        in.substream(-1);
-    }
-
-    @Test(expected = IOException.class)
-    public void substreamTooLong() throws IOException {
-        IconInputStream in = new IconInputStream(new ByteArrayInputStream(seq(0, 2)));
-        in.substream(2).substream(3);
     }
 
 
