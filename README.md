@@ -15,7 +15,8 @@ Project is split into multiple artifacts:
 * `iconized-andorid` - decoder which returns `android.graphics.Bitmap`
 * `iconized-test` - utility classes for unit testing, not intended for public use
 
-We always use native PNG decoder (ImageIO or `android.graphics.BitmapFactory`).
+We always use native PNG decoder (ImageIO or `android.graphics.BitmapFactory`). We also attempt not to
+copy data around and parsing is always done in single pass. 
 
 
 ## Purpose
@@ -30,16 +31,21 @@ This project aims to provide:
 
 ## Usage
 
+API is the same on Android and AWT, one always uses `IcoParser.getInstance().getIcons(...)`.
+The package of `IcoParser` and returned type is platform specific.
+
 AWT
 ```java
-import org.deletethis.iconized.awt.IcoParser;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.util.list;
+import org.deletethis.iconized.awt.IcoParser;
 
 class Main {
     public static void main(String[] args) throws IOException{
         try(InputStream stream = Foo.class.getResourceAsStream("bundled_icon.ico")) {
             List<BufferedImage> images = IcoParser.getInstance().getIcons(stream);
+            // do something with images
         }
     }    
 }
@@ -48,17 +54,19 @@ class Main {
 
 Android
 ```java
-import org.deletethis.iconized.android.IcoParser;
+import java.io.InputStream;
+import java.util.list;
 import android.graphics.Bitmap;
 import android.app.Activity;
-import java.io.InputStream;
+import org.deletethis.iconized.android.IcoParser;
 
-class MyActity extends Activity {
+class MyActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try(InputStream stream = getResources().openRawResource(R.raw.resource_id)) {
-            List<Bitmap> images = IcoParser.getInstance().getIcons();
+            List<Bitmap> images = IcoParser.getInstance().getIcons(stream);
+            // do something with images
         } catch(IOException ex) {
             throw new IllegalStateException("Cannot open resource");
         }
