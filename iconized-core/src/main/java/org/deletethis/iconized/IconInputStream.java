@@ -1,138 +1,181 @@
-/*
- * Iconized - an .ico parser in Java
- *
- * Copyright (c) 2018, Peter Hanula
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
 package org.deletethis.iconized;
 
-import java.io.EOFException;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * An improved {@link InputStream} for reading icons.
+ * A stream with bunch of additional capabilities.
  *
- * It provides several features:
- * <ul>
- *    <li>Can read short and int values (similar to {@link java.io.DataInputStream}, but in little-endian
- *    <li>Can push back several input bytes (similar to {@link java.io.PushbackInputStream}
- *    <li>Tracks current offset from beginning of stream
- * </ul>
+ * <p>
+ * It can push bytes back to input stream.
+ *
+ * <p>
+ * It also tracks offset from the beginning of the stream.
+ *
+ * <p>
+ * In can create "substreams" of limited size, which will provide data
+ * from the original stream. All streams share same state, reading will yield identical
+ * results, besides the fact they will return end-of-file at different positions.
+ * <p>
+ * Substream are not thread safe with each other.
+ * <p>
+ * Closing a substream is a no-op and optional.
  */
-public class IconInputStream extends FilterInputStream {
-    private static final int PUSH_BACK_BUFFER_SIZE = 8;
+public class IconInputStream extends InputStream {
+    private static class Data {
+        private static final int PUSH_BACK_BUFFER_SIZE = 16;
+        private byte [] pushBackBuffer = new byte[PUSH_BACK_BUFFER_SIZE];
+        private int pushBackBufferUse = 0;
+        private long offset = 0;
+        private InputStream in;
 
-    private final byte [] pushBackBuffer = new byte[PUSH_BACK_BUFFER_SIZE];
+        public Data(InputStream in) {
+            this.in = in;
+        }
 
-    private int offset = 0;
-    private int pushBackBufferUse;
+        int read(long boundary) throws IOException {
 
-    IconInputStream(InputStream in) {
-        super(in);
+            if(boundary >= 0 && offset >= boundary){
+                return -1;
+            }
+
+            int result;
+            if(pushBackBufferUse > 0) {
+                result = pushBackBuffer[PUSH_BACK_BUFFER_SIZE-pushBackBufferUse] & 0xFF;
+                --pushBackBufferUse;
+            } else {
+                result = in.read();
+            }
+            if(result >= 0)
+                ++offset;
+
+            return result;
+        }
+
+        int read(long boundary, byte[] buffer, int o, int length) throws IOException {
+            if(length == 0) {
+                return 0;
+            }
+            if(length < 0){
+                throw new IllegalArgumentException();
+            }
+            if (boundary >= 0 && this.offset + length >= boundary) {
+                length = (int) (boundary - this.offset);
+                assert length >= 0;
+
+                if (length == 0) {
+                    return -1;
+                }
+            }
+
+            if(pushBackBufferUse > 0) {
+                if(length >= pushBackBufferUse) {
+                    length = pushBackBufferUse;
+                }
+                System.arraycopy(pushBackBuffer, PUSH_BACK_BUFFER_SIZE-pushBackBufferUse, buffer, o, length);
+                pushBackBufferUse -= length;
+            } else {
+                length = in.read(buffer, o, length);
+            }
+            this.offset += length;
+            return length;
+        }
+
+        long skip(long boundary, long count) throws IOException {
+            if(boundary >= 0 && offset + count >= boundary) {
+                count = boundary - offset;
+                assert count >= 0;
+            }
+
+            if(pushBackBufferUse > 0) {
+                if(count > pushBackBufferUse)
+                    count = pushBackBufferUse;
+
+                pushBackBufferUse -= count;
+            } else {
+                count = in.skip(count);
+            }
+            offset += count;
+            return count;
+        }
+
+        long getOffset() {
+            return offset;
+        }
+
+        void close() throws IOException {
+            in.close();
+        }
+
+        void pushBack(byte b) {
+            pushBackBufferUse++;
+            pushBackBuffer[PUSH_BACK_BUFFER_SIZE-pushBackBufferUse] = b;
+            --offset;
+        }
+    }
+
+    private final Data data;
+    private final long boundary;
+    private static final long NO_BONDRAY = -1;
+
+    public IconInputStream(InputStream inputStream) {
+        this(new Data(inputStream), NO_BONDRAY);
+    }
+
+    private boolean isMainStream() {
+        return boundary != NO_BONDRAY;
+    }
+
+    public IconInputStream(Data data, long boundary) {
+        this.data = data;
+        this.boundary = boundary;
     }
 
     @Override
     public int read() throws IOException {
-        int result;
-
-        if(pushBackBufferUse > 0) {
-            result = (pushBackBuffer[PUSH_BACK_BUFFER_SIZE-pushBackBufferUse] & 0xFF);
-            --pushBackBufferUse;
-        } else {
-            result = in.read();
-        }
-
-        if (result >= 0)
-            ++offset;
-
-        return result;
+        return data.read(boundary);
     }
 
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        if (len == 0) {
-            return 0;
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+        return data.read(boundary, buffer, offset, length);
+    }
+
+
+    @Override
+    public long skip(long count) throws IOException {
+        return data.skip(boundary, count);
+    }
+
+    public long getOffset() {
+        return data.getOffset();
+    }
+
+    public long getBoundary() {
+        return boundary;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if(isMainStream()) {
+            data.close();
         }
-        if (len < 0) {
+    }
+
+    public void pushBack(byte b) throws IOException {
+        data.pushBack(b);
+    }
+
+    public IconInputStream substream(long length) throws IOException {
+        if(length < 0) {
             throw new IllegalArgumentException();
         }
-        int result;
-        if(pushBackBufferUse > 0) {
-            if(len >= pushBackBufferUse) {
-                len = pushBackBufferUse;
+        if(boundary >= 0) {
+            if(data.getOffset() + length > boundary) {
+                throw new IOException("substream exceed current boundary");
             }
-            System.arraycopy(pushBackBuffer, PUSH_BACK_BUFFER_SIZE-pushBackBufferUse, b, off, len);
-
-            pushBackBufferUse -= len;
-            result = len;
-        } else {
-            result = in.read(b, off, len);
         }
-        offset += result;
-        return result;
-    }
 
-    public void unread(byte b) {
-        pushBackBufferUse++;
-        pushBackBuffer[PUSH_BACK_BUFFER_SIZE-pushBackBufferUse] = b;
-
-        --offset;
-    }
-
-    public void unreadIntLE(int value) {
-        unread((byte)(value >> 24));
-        unread((byte)(value >> 16));
-        unread((byte)(value >> 8));
-        unread((byte)(value));
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void skipFully(long n) throws IOException {
-        for(long i = 0; i < n; ++i) {
-            read();
-        }
-    }
-
-    public byte readByte() throws IOException {
-        int ch = read();
-        if (ch < 0)
-            throw new EOFException();
-        return (byte)(ch);
-    }
-
-    public short readIntelShort() throws IOException {
-        int ch1 = read();
-        int ch2 = read();
-        if ((ch1 | ch2) < 0)
-            throw new EOFException();
-        return (short)((ch2 << 8) + (ch1));
-    }
-
-    public int readIntelInt() throws IOException {
-        int ch1 = read();
-        int ch2 = read();
-        int ch3 = read();
-        int ch4 = read();
-        if ((ch1 | ch2 | ch3 | ch4) < 0)
-            throw new EOFException();
-        return ((ch4 << 24) + (ch3 << 16) + (ch2 << 8) + (ch1));
+        return new IconInputStream(data, data.getOffset() + length);
     }
 }

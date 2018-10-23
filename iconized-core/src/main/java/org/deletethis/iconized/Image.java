@@ -19,16 +19,8 @@
  */
 package org.deletethis.iconized;
 
-import java.io.IOException;
-
-public class BadIconFormatException extends IOException {
-    static final long serialVersionUID = 2880826308501782032L;
-
-    public BadIconFormatException(String message) {
-        super(message);
-    }
-
-    public BadIconFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface Image {
+    int getWidth();
+    int getHeight();
+    void setARGB(int x, int y, int rgb);
 }

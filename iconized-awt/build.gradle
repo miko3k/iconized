@@ -1,7 +1,0 @@
-apply plugin: 'java-library'
-
-dependencies {
-    api project(':iconized-core')
-    testCompile project(':iconized-test')
-
-}

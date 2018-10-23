@@ -21,12 +21,13 @@
 package org.deletethis.iconized;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
-    private final PixmapFactory<T> pixmapFactory;
+public class IconBmpDecoder<T extends Image> implements ImageDecoder<T> {
+    private final ImageFactory<T> imageFactory;
 
-    public IconBmpDecoder(PixmapFactory<T> pixmapFactory) {
-        this.pixmapFactory = pixmapFactory;
+    public IconBmpDecoder(ImageFactory<T> imageFactory) {
+        this.imageFactory = imageFactory;
     }
 
     private final static int AND_0 = 0xFFFFFFFF;
@@ -45,9 +46,11 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
         return 0xFF << 24 | (red&0xFF) << 16 | (green&0xFF) << 8 | (blue&0xFF);
     }
 
-    public T decodeImage(IconInputStream in) throws IOException {
+    public T decodeImage(InputStream inStream) throws IOException {
+        SimpleDataStream in = new SimpleDataStream(inStream);
+
         int infoHeaderSize = in.readIntelInt();
-        if (infoHeaderSize != ImageDecoder.BMP_MAGIC) {
+        if (infoHeaderSize != AbstractIcoParser.BMP_MAGIC) {
             throw new BadIconFormatException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
         }
 
@@ -62,7 +65,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
 
         // 32 bit icon has transparency from alpha so doing nothing is fine
         if (header.getBpp() != 32) {
-            ArrayPixmap andMask = new ArrayPixmap(header.getWidth(), header.getHeight());
+            ArrayImage andMask = new ArrayImage(header.getWidth(), header.getHeight());
             read1(andMask, in, andColorTable);
 
             for (int y = 0; y < header.getHeight(); y++) {
@@ -106,7 +109,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
      * @param in the <tt>InputStream</tt> to read
      * @return the <tt>InfoHeader</tt> structure
      */
-    private InfoHeader readInfoHeader(IconInputStream in) throws IOException {
+    private InfoHeader readInfoHeader(SimpleDataStream in) throws IOException {
         //Width
         int width = in.readIntelInt();
 
@@ -148,7 +151,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
      *                   {@link #readInfoHeader readInfoHeader()}.
      * @return the decoded image read from the source input
      */
-    private T read(InfoHeader infoHeader, IconInputStream lis) throws IOException {
+    private T read(InfoHeader infoHeader, SimpleDataStream lis) throws IOException {
         /* Color table (palette) */
         int[] colorTable = null;
 
@@ -170,10 +173,10 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
      * @param lis        the source input
      * @return the decoded image read from the source input
      */
-    private T read(InfoHeader infoHeader, IconInputStream lis,
+    private T read(InfoHeader infoHeader, SimpleDataStream lis,
                 int[] colorTable) throws IOException {
 
-        T pm = pixmapFactory.createPixmap(infoHeader.getWidth(), infoHeader.getHeight());
+        T pm = imageFactory.createImage(infoHeader.getWidth(), infoHeader.getHeight());
         int bpp = infoHeader.getBpp();
         int compression = infoHeader.getCompression();
 
@@ -218,7 +221,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
      * @param lis        the <tt>InputStream</tt> to read
      * @return the decoded image read from the source input
      */
-    private int[] readColorTable(int numColors, IconInputStream lis) throws IOException {
+    private int[] readColorTable(int numColors, SimpleDataStream lis) throws IOException {
 
         int[] colors = new int[numColors];
 
@@ -233,7 +236,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
         return colors;
     }
 
-    private void read1(Pixmap img, IconInputStream lis, int[] colorTable) throws IOException {
+    private void read1(Image img, SimpleDataStream lis, int[] colorTable) throws IOException {
         //1 bit per pixel or 8 pixels per byte
         //each pixel specifies the palette index
 
@@ -264,7 +267,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
         }
     }
 
-    private void read4(Pixmap img, IconInputStream lis, int [] colorTable) throws IOException {
+    private void read4(Image img, SimpleDataStream lis, int [] colorTable) throws IOException {
 
         // 2 pixels per byte or 4 bits per pixel.
         // Colour for each pixel specified by the color index in the pallette.
@@ -300,7 +303,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
         }
     }
 
-    private void read8(Pixmap img, IconInputStream lis, int[] colorTable) throws IOException {
+    private void read8(Image img, SimpleDataStream lis, int[] colorTable) throws IOException {
         //1 byte per pixel
         //  color index 1 (index of color in palette)
         //lines padded to nearest 32bits
@@ -330,7 +333,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
         }
     }
 
-    private void read24(Pixmap img, IconInputStream lis) throws IOException {
+    private void read24(Image img, SimpleDataStream lis) throws IOException {
         //3 bytes per pixel
         //  blue 1
         //  green 1
@@ -363,7 +366,7 @@ public class IconBmpDecoder<T extends Pixmap> implements ImageDecoder<T> {
         }
     }
 
-    private void read32(Pixmap img,  IconInputStream lis) throws IOException {
+    private void read32(Image img, SimpleDataStream lis) throws IOException {
         //4 bytes per pixel
         // blue 1
         // green 1

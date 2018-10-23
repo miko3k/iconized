@@ -20,10 +20,8 @@
 package org.deletethis.iconized;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public interface ImageDecoder<T> {
-    int BMP_MAGIC = 40;
-    int PNG_MAGIC = 0x474E5089;
-
-    T decodeImage(IconInputStream stream) throws IOException;
+    T decodeImage(InputStream stream) throws IOException;
 }

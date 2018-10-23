@@ -1,4 +1,0 @@
-rootProject.name = 'iconized-parent'
-include ':iconized-core', ':iconized-android'
-include ':iconized-awt'
-include ':iconized-test'
