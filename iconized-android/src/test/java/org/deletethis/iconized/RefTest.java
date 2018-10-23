@@ -34,7 +34,7 @@ public class RefTest {
     }
 
     private void doTestCase(SuccessTestCase currentTestCase) throws IOException {
-        List<Bitmap> images = IcoParser.getInstance().decode(currentTestCase.getIcoFile());
+        List<Bitmap> images = IcoParser.getInstance().getIcons(currentTestCase.getIcoFile());
 
         List<byte[]> pngs = currentTestCase.getResultAsPng();
 

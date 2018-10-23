@@ -28,6 +28,25 @@ This project aims to provide:
 * with no dependencies on third-party libraries (where possible)
 * be as much much unit and field tested as possible
 
+## Usage
+
+AWT (stream needs to be closed afterwards)
+```java
+import org.deletethis.iconized.awt.IcoParser;
+import java.awt.image.BufferedImage;
+
+List<BufferedImage> images = IcoParser.getInstance().getIcons(Foo.class.getResourceAsStream("bundled_icon.ico"));
+```
+
+Android (do not forget to close the stream afterwards!)
+```java
+import org.deletethis.iconized.android.IcoParser;
+import android.graphics.Bitmap;
+
+List<Bitmap> images = IcoParser.getInstance().getIcons(getResources().openRawResource(R.raw.resource_id));
+```
+
+
 ## License
 
 The `iconized` library is licensed under the GNU LGPL v2.1 so you are free to use it in your Free Software and Open Source projects, as well as commercial projects, under the terms of the LGPL v2.1.

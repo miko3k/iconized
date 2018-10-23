@@ -35,16 +35,16 @@ abstract public class AbstractIcoParser<T> {
 
     abstract protected ImageDecoder<T> getImageDecoder(int magic);
 
-    final public List<T> decode(byte [] buffer) throws IOException {
-        return decode(buffer, 0, buffer.length);
+    final public List<T> getIcons(byte [] buffer) throws IOException {
+        return getIcons(buffer, 0, buffer.length);
     }
 
-    final public List<T> decode(byte [] buffer, int offset, int length) throws IOException {
-        return decode(new ByteArrayInputStream(buffer, offset, length));
+    final public List<T> getIcons(byte [] buffer, int offset, int length) throws IOException {
+        return getIcons(new ByteArrayInputStream(buffer, offset, length));
     }
 
-    final public List<T> decode(InputStream inputStream) throws IOException {
-        return decode(new IconInputStream(inputStream));
+    final public List<T> getIcons(InputStream inputStream) throws IOException {
+        return getIcons(new IconInputStream(inputStream));
     }
 
 
@@ -83,7 +83,7 @@ abstract public class AbstractIcoParser<T> {
 
     }
 
-    private List<T> decode(IconInputStream stream) throws IOException {
+    private List<T> getIcons(IconInputStream stream) throws IOException {
         SimpleDataStream data = new SimpleDataStream(stream);
 
         if(data.readIntelShort() != 0) {

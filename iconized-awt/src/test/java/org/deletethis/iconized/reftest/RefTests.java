@@ -27,7 +27,7 @@ public class RefTests {
 
     @Test
     public void testLoad() throws IOException {
-        List<BufferedImage> images = IcoParser.getInstance().decode(currentTestCase.getIcoFile());
+        List<BufferedImage> images = IcoParser.getInstance().getIcons(currentTestCase.getIcoFile());
 
         List<byte[]> pngs = currentTestCase.getResultAsPng();
 

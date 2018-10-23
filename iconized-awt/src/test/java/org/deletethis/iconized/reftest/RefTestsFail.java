@@ -18,7 +18,7 @@ public class RefTestsFail {
     @Test
     public void testLoad() {
         try {
-            IcoParser.getInstance().decode(currentTestCase.getIcoFile());
+            IcoParser.getInstance().getIcons(currentTestCase.getIcoFile());
         } catch(Exception ex) {
             if(!currentTestCase.getExceptionClass().isInstance(ex)) {
                 throw new AssertionError("Wrong exception", ex);
