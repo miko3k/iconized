@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.deletethis.iconized</groupId>
-    <artifactId>iconized-parent</artifactId>
+    <groupId>org.deletethis.mejico</groupId>
+    <artifactId>mejico-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>iconized-android</module>
-        <module>iconized-awt</module>
-        <module>iconized-core</module>
-        <module>iconized-test</module>
+        <module>mejico-android</module>
+        <module>mejico-awt</module>
+        <module>mejico-core</module>
+        <module>mejico-test</module>
     </modules>
 
     <properties>
@@ -40,7 +40,7 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-<!--
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -56,7 +56,7 @@
                     </execution>
                 </executions>
             </plugin>
-        </plugins>-->
+        </plugins>
     </build>
 
     <dependencies>
@@ -71,13 +71,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.deletethis.iconized</groupId>
-                <artifactId>iconized-core</artifactId>
+                <groupId>org.deletethis.mejico</groupId>
+                <artifactId>mejico-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.deletethis.iconized</groupId>
-                <artifactId>iconized-test</artifactId>
+                <groupId>org.deletethis.mejico</groupId>
+                <artifactId>mejico-test</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>

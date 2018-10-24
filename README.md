@@ -1,33 +1,30 @@
-# iconized
+# `mejico`
 
 A multiplatform `.ico` reading library.
 
 ## Overview
 
-The `iconized` library allows you to read certain Microsoft icon format (1, 4, 8, 24 and 32 bit, XP uncompressed, Vista compressed).
+The `mejico` a small library to read Microsoft ICO format in pure java.
 
-Any `.ico` file which can be read by any version of Windows and not this library will considered a bug. 
-Please submit a bug report if you have such a file.
+* a commercial-friendly license
+* no dependencies on third-party libraries
+* comprehensively unit tested
+* fully compatible with .ico format
+
+All versions should be supported. Hopefully. Please file a bug and help to improve this library
+if you find an `.ico` file in the wild, which can be read by any version of Windows 
+and this library fails to do so. 
+
+### Structure
 
 Project is split into multiple artifacts:
-* `iconized-core` - core decoding routines, mostly coming from `image4j`
-* `iconized-awt` - decoder which returns `java.awt.image.BufferedImage`
-* `iconized-andorid` - decoder which returns `android.graphics.Bitmap`
-* `iconized-test` - utility classes for unit testing, not intended for public use
+* `mejico-core` - core decoding routines, mostly coming from `image4j`
+* `mejico-awt` - decoder which returns `java.awt.image.BufferedImage`
+* `mejico-andorid` - decoder which returns `android.graphics.Bitmap`
+* `mejico-test` - utility classes for unit testing, not intended for public use
 
-We always use native PNG decoder (ImageIO or `android.graphics.BitmapFactory`). We also attempt not to
-copy data around and parsing is always done in single pass. 
-
-
-## Purpose
-
-This project aims to provide:
-
-* an open source library for handling ICO formats in Java
-* with a commercial-friendly license
-* using only Java code, ie. without using any JNI hacks
-* with no dependencies on third-party libraries (where possible)
-* be as much much unit and field tested as possible
+Loading of PNG data is delegated to native facilities. This is the main reason why we have
+separate Android and AWT artifacts. 
 
 ## Usage
 
@@ -37,13 +34,14 @@ The package of `IcoParser` and returned type is platform specific.
 AWT
 ```java
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.list;
-import org.deletethis.iconized.awt.IcoParser;
+import java.util.List;
+import org.deletethis.mejico.awt.IcoParser;
 
 class Main {
-    public static void main(String[] args) throws IOException{
-        try(InputStream stream = Foo.class.getResourceAsStream("bundled_icon.ico")) {
+    public static void main(String[] args) throws IOException {
+        try(InputStream stream = Main.class.getResourceAsStream("bundled_icon.ico")) {
             List<BufferedImage> images = IcoParser.getInstance().getIcons(stream);
             // do something with images
         }
@@ -54,11 +52,13 @@ class Main {
 
 Android
 ```java
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.list;
+import java.util.List;
 import android.graphics.Bitmap;
 import android.app.Activity;
-import org.deletethis.iconized.android.IcoParser;
+import android.os.Bundle;
+import org.deletethis.mejico.android.IcoParser;
 
 class MyActivity extends Activity {
     @Override
@@ -74,21 +74,32 @@ class MyActivity extends Activity {
 } 
 ```
 
-
 ## License
 
-The `iconized` library is licensed under the GNU LGPL v2.1 so you are free to use it in your Free Software and Open Source projects, as well as commercial projects, under the terms of the LGPL v2.1.
+The `mejico` library is licensed under the GNU LGPL v2.1 so you are free to use it in
+ your Free Software and Open Source projects, as well as commercial projects, 
+ under the terms of the LGPL v2.1.
 
 ## History
 
-This is a fork of [image4j](https://github.com/imcdonagh/image4j). I changed the code beyond recognition, added a battery 
-of unit tests, ditched many parts including encoding and general purpose BMP decoder. 
+This is a fork of [image4j](https://github.com/imcdonagh/image4j). I changed the code
+beyond recognition, added a battery of unit tests, ditched many parts including
+encoding and general purpose BMP decoder.
 
+## Future
+
+I plan to maintain this library. More or less.
+
+If you encounter bugs, please do not hesitate to report them.
+
+I might add an API which returns more information about images (hotspot position for CUR file) or
+an api which allows user to decode only selected image based on their metadata.
 
 ## Credits
 
 * [image4j](https://github.com/imcdonagh/image4j)
-* The [File Formats page at DaubNET](https://www.daubnet.com/en/file-formats) for information on various image formats.
+* The [File Formats page at DaubNET](https://www.daubnet.com/en/file-formats) for information 
+  on various image formats
 * GIMP, which we use for editing images
 
 ## Disclaimer
