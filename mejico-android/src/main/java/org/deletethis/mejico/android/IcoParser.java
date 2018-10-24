@@ -32,11 +32,11 @@ public class IcoParser extends BaseIcoParser<Bitmap> {
 
     private static IcoParser INSTANCE = new IcoParser();
 
-    private static final ImageDecoder<ArrayImage> BITMAP_DECODER = new BitmapDecoder<>(ArrayImage.FACTORY);
+    private static final BitmapDecoder<ArrayImage> BMP_DECODER = new BitmapDecoder<>(ArrayImage.FACTORY);
 
     @Override
     protected Bitmap decodeBmp(InputStream inputStream) throws IOException {
-        ArrayImage image = BITMAP_DECODER.decodeImage(inputStream);
+        ArrayImage image = BMP_DECODER.decodeImage(inputStream);
         Bitmap result = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
         result.setPixels(image.getData(), 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
         return result;

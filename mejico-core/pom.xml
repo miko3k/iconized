@@ -12,4 +12,14 @@
 
     <artifactId>mejico-core</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <name>mejico-core</name>
+    <description>A set of portable classes to read ICO files</description>
+    <url>https://github.com/miko3k/mejico</url>
+
+    <scm>
+        <connection>${scm}</connection>
+        <developerConnection>${scm}</developerConnection>
+    </scm>
 </project>
+

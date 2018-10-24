@@ -13,6 +13,14 @@
     <artifactId>mejico-android</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <name>mejico-android</name>
+    <description>The ICO reading library for Android</description>
+    <url>https://github.com/miko3k/mejico</url>
+
+    <scm>
+        <connection>${scm}</connection>
+        <developerConnection>${scm}</developerConnection>
+    </scm>
 
     <dependencies>
         <dependency>

@@ -23,7 +23,7 @@ package org.deletethis.mejico;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BitmapDecoder<T extends Image> implements ImageDecoder<T> {
+public class BitmapDecoder<T extends Image> {
     private final ImageFactory<T> imageFactory;
 
     public BitmapDecoder(ImageFactory<T> imageFactory) {
@@ -50,8 +50,8 @@ public class BitmapDecoder<T extends Image> implements ImageDecoder<T> {
         SimpleDataStream in = new SimpleDataStream(inStream);
 
         int infoHeaderSize = in.readIntelInt();
-        if (infoHeaderSize != AbstractIcoParser.BMP_MAGIC) {
-            throw new IcoFormatException("not a bitmap, magic = " + Integer.toHexString(infoHeaderSize));
+        if (infoHeaderSize != 40) {
+            throw new IcoFormatException("weird header size: " + infoHeaderSize);
         }
 
         // read header

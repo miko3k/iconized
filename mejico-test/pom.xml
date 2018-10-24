@@ -13,6 +13,14 @@
     <artifactId>mejico-test</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <name>mejico-test</name>
+    <description>mejico test support</description>
+    <url>https://github.com/miko3k/mejico</url>
+
+    <scm>
+        <connection>${scm}</connection>
+        <developerConnection>${scm}</developerConnection>
+    </scm>
 
     <dependencies>
         <dependency>

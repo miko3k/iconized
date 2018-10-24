@@ -27,19 +27,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Core parser of ICO file.
+ *
+ * It reads file header and decodes individual images using {@link #decodeImage}.
+ *
+ * @param <T>
+ */
 abstract public class AbstractIcoParser<T> {
-    protected final static int BMP_MAGIC = 40;
-    protected final static int PNG_MAGIC = 0x474E5089;
-
     private final static int ICON = 1, CURSOR = 2;
 
-    abstract protected ImageDecoder<T> getImageDecoder(int magic);
+    protected abstract T decodeImage(int magic, IconInputStream stream) throws IOException;
 
-    final public List<T> getIcons(byte [] buffer) throws IOException {
+    final public List<T> getIcons(byte[] buffer) throws IOException {
         return getIcons(buffer, 0, buffer.length);
     }
 
-    final public List<T> getIcons(byte [] buffer, int offset, int length) throws IOException {
+    final public List<T> getIcons(byte[] buffer, int offset, int length) throws IOException {
         return getIcons(new ByteArrayInputStream(buffer, offset, length));
     }
 
@@ -61,7 +65,7 @@ abstract public class AbstractIcoParser<T> {
 
         @Override
         public int compareTo(IconInfo o) {
-            if(dataOffset != o.dataOffset) {
+            if (dataOffset != o.dataOffset) {
                 return Integer.signum(dataOffset - o.dataOffset);
             }
             return Integer.signum(dataSize - o.dataSize);
@@ -70,14 +74,14 @@ abstract public class AbstractIcoParser<T> {
 
     private void removeNulls(List<T> list) {
         int notNullCount = 0;
-        for(int i=0; i < list.size(); ++i) {
+        for (int i = 0; i < list.size(); ++i) {
             T t = list.get(i);
-            if(t != null) {
+            if (t != null) {
                 list.set(notNullCount, t);
                 ++notNullCount;
             }
         }
-        if(notNullCount < list.size()) {
+        if (notNullCount < list.size()) {
             list.subList(notNullCount, list.size()).clear();
         }
 
@@ -86,16 +90,16 @@ abstract public class AbstractIcoParser<T> {
     private List<T> getIcons(IconInputStream stream) throws IOException {
         SimpleDataStream data = new SimpleDataStream(stream);
 
-        if(data.readIntelShort() != 0) {
+        if (data.readIntelShort() != 0) {
             throw new IcoFormatException("first WORD must be 0");
         }
 
         int type = data.readIntelShort();
-        if(type != ICON && type != CURSOR)
+        if (type != ICON && type != CURSOR)
             throw new IcoFormatException("second WORD must be 0 or 1");
 
         int numberOfImages = data.readIntelShort();
-        if(numberOfImages == 0){
+        if (numberOfImages == 0) {
             throw new IcoFormatException("no icons in this file");
         }
 
@@ -120,46 +124,44 @@ abstract public class AbstractIcoParser<T> {
 
         ArrayList<T> result = new ArrayList<>(Collections.<T>nCopies(numberOfImages, null));
 
-        for(IconInfo iconInfo: icons) {
+        for (IconInfo iconInfo : icons) {
             int imageNumber = iconInfo.imageNumber;
             int dataOffset = iconInfo.dataOffset;
 
             long streamOffset = stream.getOffset();
             long skip = dataOffset - streamOffset;
-            if(skip < 0) {
+            if (skip < 0) {
                 // ignore this icon, we probably read too much during last image
                 continue;
             }
-            if(skip > 0) {
-                data.skipFully((int)skip);
+            if (skip > 0) {
+                data.skipFully((int) skip);
             }
 
             try {
                 int magic = data.readIntelInt();
 
-                stream.pushBack((byte)(magic >>> 24));
-                stream.pushBack((byte)(magic >>> 16));
-                stream.pushBack((byte)(magic >>> 8));
-                stream.pushBack((byte)magic);
+                stream.pushBack((byte) (magic >>> 24));
+                stream.pushBack((byte) (magic >>> 16));
+                stream.pushBack((byte) (magic >>> 8));
+                stream.pushBack((byte) magic);
 
-                ImageDecoder<T> imageDecoder = getImageDecoder(magic);
-
-                if (imageDecoder == null) {
+                T image = decodeImage(magic, stream);
+                if (image == null)
                     continue;
-                }
-
-                T image = imageDecoder.decodeImage(stream);
 
                 result.set(imageNumber, image);
-            } catch(IcoFormatException ex) {
+            } catch (IcoFormatException ex) {
                 throw new IcoFormatException("Icon #" + imageNumber + ": " + ex.getMessage(), ex);
             }
         }
         removeNulls(result);
-        if(result.isEmpty()){
+        if (result.isEmpty()) {
             throw new IcoFormatException("no icon was successfully decoded");
         }
 
         return result;
     }
 }
+
+
