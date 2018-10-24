@@ -92,8 +92,10 @@ I plan to maintain this library. More or less.
 
 If you encounter bugs, please do not hesitate to report them.
 
-I might add an API which returns more information about images (hotspot position for CUR file) or
-an api which allows user to decode only selected image based on their metadata.
+I feel two major features are missing:
+* a method to retrieve image metadata (hotspot position for CUR file...)
+* a method to select images to decode based on their metadata (this might be hard, because even if boundaries are wrong
+  windows tend to display icon somehow, more research would be needed)
 
 ## Credits
 
