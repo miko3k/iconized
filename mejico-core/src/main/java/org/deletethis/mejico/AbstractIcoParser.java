@@ -32,7 +32,9 @@ import java.util.List;
  *
  * It reads file header and decodes individual images using {@link #decodeImage}.
  *
- * @param <T>
+ * Abstract method {@link #decodeImage} is meant to be overridden by subclasses.
+ *
+ * @param <T> Platform dependent image type
  */
 abstract public class AbstractIcoParser<T> {
     private final static int ICON = 1, CURSOR = 2;

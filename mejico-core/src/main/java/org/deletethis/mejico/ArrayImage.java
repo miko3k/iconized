@@ -21,13 +21,18 @@ package org.deletethis.mejico;
 
 import java.util.Arrays;
 
-public class ArrayImage implements Image {
+/**
+ * A rectangular array of pixels stored as <code>int []</code>.
+ *
+ * It's obviously completely platform independent!
+ */
+public class ArrayImage implements WritableImage {
     private final int width, height;
     private int [] data;
 
-    public static final ImageFactory<ArrayImage> FACTORY = new ImageFactory<ArrayImage>() {
+    public static final WritableImageFactory<ArrayImage> FACTORY = new WritableImageFactory<ArrayImage>() {
         @Override
-        public ArrayImage createImage(int width, int height) {
+        public ArrayImage createWritableImage(int width, int height) {
             return new ArrayImage(width, height);
         }
     };

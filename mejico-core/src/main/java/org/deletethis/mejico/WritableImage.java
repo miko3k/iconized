@@ -19,6 +19,30 @@
  */
 package org.deletethis.mejico;
 
-public interface ImageFactory<T extends Image> {
-    T createImage(int width, int height);
+/**
+ * A write-only rectangular array of pixels.
+ */
+public interface WritableImage {
+    /**
+     * Determines width in pixels
+     *
+     * @return width in pixels
+     */
+    int getWidth();
+
+    /**
+     * Determines height in pixels
+     *
+     * @return height in pixels
+     */
+    int getHeight();
+
+    /**
+     * Sets color value of one pixel
+     *
+     * @param x x-coordinate from 0 to {@link #getWidth}()-1
+     * @param y y-coordinate from 0 to {@link #getHeight}()-1
+     * @param rgb ARGB 32-bit color value, alpha value 0 means completely transparent pixel
+     */
+    void setARGB(int x, int y, int rgb);
 }

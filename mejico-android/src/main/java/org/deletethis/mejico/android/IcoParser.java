@@ -27,6 +27,9 @@ import org.deletethis.mejico.*;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * The parser of ICO files for Android.
+ */
 public class IcoParser extends BaseIcoParser<Bitmap> {
     private IcoParser() { }
 

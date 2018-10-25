@@ -6,7 +6,7 @@ import org.junit.Test;
 public class ArrayImageTests {
     @Test
     public void factory() {
-        Image image = ArrayImage.FACTORY.createImage(1, 2);
+        WritableImage image = ArrayImage.FACTORY.createWritableImage(1, 2);
         Assert.assertEquals(1, image.getWidth());
         Assert.assertEquals(2, image.getHeight());
     }

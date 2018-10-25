@@ -19,8 +19,18 @@
  */
 package org.deletethis.mejico;
 
-public interface Image {
-    int getWidth();
-    int getHeight();
-    void setARGB(int x, int y, int rgb);
+/**
+ * An abstract way of creating the {@link WritableImage}
+ *
+ * @param <T> Type of image which is produced by this factory
+ */
+public interface WritableImageFactory<T extends WritableImage> {
+    /**
+     * Creates an image with specified dimensions
+     *
+     * @param width desired width
+     * @param height desired height
+     * @return a brand new image
+     */
+    T createWritableImage(int width, int height);
 }

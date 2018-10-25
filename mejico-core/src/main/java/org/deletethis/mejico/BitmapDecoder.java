@@ -23,11 +23,18 @@ package org.deletethis.mejico;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BitmapDecoder<T extends Image> {
-    private final ImageFactory<T> imageFactory;
+/**
+ * The decoder of BMP data in <code>.ico</code> file.
+ *
+ * It is not a general purpose BMP decoder, in particular it expects absence of Bitmap file header.
+ */
+public class BitmapDecoder<T extends WritableImage> {
+    private final WritableImageFactory<T> writableImageFactory;
+    final static int BMP_MAGIC = 40;
 
-    public BitmapDecoder(ImageFactory<T> imageFactory) {
-        this.imageFactory = imageFactory;
+
+    public BitmapDecoder(WritableImageFactory<T> writableImageFactory) {
+        this.writableImageFactory = writableImageFactory;
     }
 
     private final static int AND_0 = 0xFFFFFFFF;
@@ -50,7 +57,7 @@ public class BitmapDecoder<T extends Image> {
         SimpleDataStream in = new SimpleDataStream(inStream);
 
         int infoHeaderSize = in.readIntelInt();
-        if (infoHeaderSize != 40) {
+        if (infoHeaderSize != BMP_MAGIC) {
             throw new IcoFormatException("weird header size: " + infoHeaderSize);
         }
 
@@ -84,8 +91,8 @@ public class BitmapDecoder<T extends Image> {
      * Retrieves a bit from the lowest order byte of the given integer.
      *
      * @param bits  the source integer, treated as an unsigned byte
-     * @param index the index of the bit to retrieve, which must be in the range <tt>0..7</tt>.
-     * @return the bit at the specified index, which will be either <tt>0</tt> or <tt>1</tt>.
+     * @param index the index of the bit to retrieve, which must be in the range 0..7.
+     * @return the bit at the specified index, which will be either 0 or 1.
      */
     private int getBit(int bits, int index) {
         return (bits >> (7 - index)) & 1;
@@ -95,7 +102,7 @@ public class BitmapDecoder<T extends Image> {
      * Retrieves a nibble (4 bits) from the lowest order byte of the given integer.
      *
      * @param nibbles the source integer, treated as an unsigned byte
-     * @param index   the index of the nibble to retrieve, which must be in the range <tt>0..1</tt>.
+     * @param index   the index of the nibble to retrieve, which must be in the range 0..1.
      * @return the nibble at the specified index, as an unsigned byte.
      */
     private int getNibble(int nibbles, int index) {
@@ -104,10 +111,10 @@ public class BitmapDecoder<T extends Image> {
 
     /**
      * /**
-     * Reads the BMP info header structure from the given <tt>InputStream</tt>.
+     * Reads the BMP info header structure from the given {@link InputStream}.
      *
-     * @param in the <tt>InputStream</tt> to read
-     * @return the <tt>InfoHeader</tt> structure
+     * @param in input stream to read
+     * @return the info header structure
      */
     private InfoHeader readInfoHeader(SimpleDataStream in) throws IOException {
         //Width
@@ -143,12 +150,11 @@ public class BitmapDecoder<T extends Image> {
     }
 
     /**
-     * Reads the BMP data from the given <tt>InputStream</tt> using the information
-     * contained in the <tt>InfoHeader</tt>.
+     * Reads the BMP data from the given input stream using the information
+     * contained in the info header.
      *
      * @param lis        the source input
-     * @param infoHeader an <tt>InfoHeader</tt> that was read by a call to
-     *                   {@link #readInfoHeader readInfoHeader()}.
+     * @param infoHeader an info header that was read by a call to {@link #readInfoHeader}.
      * @return the decoded image read from the source input
      */
     private T read(InfoHeader infoHeader, SimpleDataStream lis) throws IOException {
@@ -164,19 +170,18 @@ public class BitmapDecoder<T extends Image> {
     }
 
     /**
-     * Reads the BMP data from the given <tt>InputStream</tt> using the information
-     * contained in the <tt>InfoHeader</tt>.
+     * Reads the BMP data from the given input stream using the information
+     * contained in the info header.
      *
-     * @param colorTable <tt>ColorEntry</tt> array containing palette
-     * @param infoHeader an <tt>InfoHeader</tt> that was read by a call to
-     *                   {@link #readInfoHeader readInfoHeader()}.
+     * @param colorTable array containing RGBA palette
+     * @param infoHeader an info header that was read by a call to {@link #readInfoHeader}.
      * @param lis        the source input
      * @return the decoded image read from the source input
      */
     private T read(InfoHeader infoHeader, SimpleDataStream lis,
                 int[] colorTable) throws IOException {
 
-        T pm = imageFactory.createImage(infoHeader.getWidth(), infoHeader.getHeight());
+        T pm = writableImageFactory.createWritableImage(infoHeader.getWidth(), infoHeader.getHeight());
         int bpp = infoHeader.getBpp();
         int compression = infoHeader.getCompression();
 
@@ -214,11 +219,10 @@ public class BitmapDecoder<T extends Image> {
     }
 
     /**
-     * Reads the <tt>ColorEntry</tt> table from the given <tt>InputStream</tt> using
-     * the information contained in the given <tt>infoHeader</tt>.
+     * Reads the palette from the given input stream using the information contained in the given info header.
      *
      * @param numColors  the number of colors
-     * @param lis        the <tt>InputStream</tt> to read
+     * @param lis        the input stream to read
      * @return the decoded image read from the source input
      */
     private int[] readColorTable(int numColors, SimpleDataStream lis) throws IOException {
@@ -236,7 +240,7 @@ public class BitmapDecoder<T extends Image> {
         return colors;
     }
 
-    private void read1(Image img, SimpleDataStream lis, int[] colorTable) throws IOException {
+    private void read1(WritableImage img, SimpleDataStream lis, int[] colorTable) throws IOException {
         //1 bit per pixel or 8 pixels per byte
         //each pixel specifies the palette index
 
@@ -267,7 +271,7 @@ public class BitmapDecoder<T extends Image> {
         }
     }
 
-    private void read4(Image img, SimpleDataStream lis, int [] colorTable) throws IOException {
+    private void read4(WritableImage img, SimpleDataStream lis, int [] colorTable) throws IOException {
 
         // 2 pixels per byte or 4 bits per pixel.
         // Colour for each pixel specified by the color index in the pallette.
@@ -303,7 +307,7 @@ public class BitmapDecoder<T extends Image> {
         }
     }
 
-    private void read8(Image img, SimpleDataStream lis, int[] colorTable) throws IOException {
+    private void read8(WritableImage img, SimpleDataStream lis, int[] colorTable) throws IOException {
         //1 byte per pixel
         //  color index 1 (index of color in palette)
         //lines padded to nearest 32bits
@@ -333,7 +337,7 @@ public class BitmapDecoder<T extends Image> {
         }
     }
 
-    private void read24(Image img, SimpleDataStream lis) throws IOException {
+    private void read24(WritableImage img, SimpleDataStream lis) throws IOException {
         //3 bytes per pixel
         //  blue 1
         //  green 1
@@ -366,7 +370,7 @@ public class BitmapDecoder<T extends Image> {
         }
     }
 
-    private void read32(Image img, SimpleDataStream lis) throws IOException {
+    private void read32(WritableImage img, SimpleDataStream lis) throws IOException {
         //4 bytes per pixel
         // blue 1
         // green 1

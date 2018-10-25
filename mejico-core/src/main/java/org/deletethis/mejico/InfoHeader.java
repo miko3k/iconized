@@ -21,7 +21,7 @@
 package org.deletethis.mejico;
 
 /**
- * Represents a bitmap <tt>InfoHeader</tt> structure, which provides header information.
+ * Represents a bitmap info header structure, which provides basic metadata.
  */
 class InfoHeader {
     /**
@@ -58,7 +58,7 @@ class InfoHeader {
 
     /**
      * The bit count, which represents the colour depth (bits per pixel).
-     * This should be either <tt>1</tt>, <tt>4</tt>, <tt>8</tt>, <tt>24</tt> or <tt>32</tt>.
+     * This should be either 1, 4, 8, 24 or 32.
      */
     int getBpp() {
         return bpp;

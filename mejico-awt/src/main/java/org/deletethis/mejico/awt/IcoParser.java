@@ -31,6 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
+/**
+ * The Java parser of ICO files.
+ *
+ * It uses ImageIO to load PNG files. {@link BufferedImage} is used as the output format.
+ */
 public class IcoParser extends BaseIcoParser<BufferedImage> {
     private static IcoParser INSTANCE = new IcoParser();
 
@@ -38,7 +43,7 @@ public class IcoParser extends BaseIcoParser<BufferedImage> {
 
     private IcoParser() { }
 
-    private static class AwtImage implements Image {
+    private static class AwtImage implements WritableImage {
         private final int [] data;
         private final BufferedImage bufferedImage;
         // attributes are not strictly necessary, as they are redundant with getWidth/getHeight on BufferedImage
@@ -70,9 +75,9 @@ public class IcoParser extends BaseIcoParser<BufferedImage> {
         }
     }
 
-    private static final BitmapDecoder<AwtImage> BMP_DECODER = new BitmapDecoder<>(new ImageFactory<AwtImage>() {
+    private static final BitmapDecoder<AwtImage> BMP_DECODER = new BitmapDecoder<>(new WritableImageFactory<AwtImage>() {
         @Override
-        public AwtImage createImage(int width, int height) {
+        public AwtImage createWritableImage(int width, int height) {
             return new AwtImage(width, height);
         }
     });

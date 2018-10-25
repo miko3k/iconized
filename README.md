@@ -94,8 +94,8 @@ If you encounter bugs, please do not hesitate to report them.
 
 I feel two major features are missing:
 * a method to retrieve image metadata (hotspot position for CUR file...)
-* a method to select images to decode based on their metadata (this might be hard, because even if boundaries are wrong
-  windows tend to display icon somehow, more research would be needed)
+* an ability to select images to decode based on their metadata (this might be harder than it seems, 
+  because even if boundaries are wrong windows tend to display icon somehow)
 
 ## Credits
 
