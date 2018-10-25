@@ -28,8 +28,8 @@ separate Android and AWT artifacts.
 
 ## Usage
 
-API is the same on Android and AWT, one always uses `IcoParser.getInstance().getIcons(...)`.
-The package of `IcoParser` and returned type is platform specific.
+API is the same on Android and AWT, one always uses `IconParser.getInstance().getIcons(...)`.
+The package of `IconParser` and returned type is platform specific.
 
 AWT
 ```java
@@ -37,14 +37,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.deletethis.mejico.awt.IcoParser;
+import org.deletethis.mejico.awt.IconParser;
 
 class Main {
     public static void main(String[] args) throws IOException {
-        try(InputStream stream = Main.class.getResourceAsStream("bundled_icon.ico")) {
-            List<BufferedImage> images = IcoParser.getInstance().getIcons(stream);
-            // do something with images
-        }
+        InputStream stream = Main.class.getResourceAsStream("bundled_icon.ico");
+        List<BufferedImage> images = IconParser.getInstance().getIcons(Main.class.getResourceAsStream("bundled_icon.ico"));
+        // do something with images
     }    
 }
 
@@ -58,15 +57,18 @@ import java.util.List;
 import android.graphics.Bitmap;
 import android.app.Activity;
 import android.os.Bundle;
-import org.deletethis.mejico.android.IcoParser;
+import org.deletethis.mejico.android.IconParser;
 
 class MyActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try(InputStream stream = getResources().openRawResource(R.raw.resource_id)) {
-            List<Bitmap> images = IcoParser.getInstance().getIcons(stream);
+        try {
+            InputStream stream = getResources().openRawResource(R.raw.resource_id);
+            List<Bitmap> images = IconParser.getInstance().getIcons(stream);
+            
             // do something with images
+            
         } catch(IOException ex) {
             throw new IllegalStateException("Cannot open resource");
         }
@@ -91,11 +93,6 @@ encoding and general purpose BMP decoder.
 I plan to maintain this library. More or less.
 
 If you encounter bugs, please do not hesitate to report them.
-
-I feel two major features are missing:
-* a method to retrieve image metadata (hotspot position for CUR file...)
-* an ability to select images to decode based on their metadata (this might be harder than it seems, 
-  because even if boundaries are wrong windows tend to display icon somehow)
 
 ## Credits
 

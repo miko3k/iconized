@@ -8,7 +8,7 @@ import java.io.InputStream;
  *
  * It can push bytes back to input stream and tracks offset from the beginning of the stream.
  */
-public class IconInputStream extends InputStream {
+class IconInputStream extends InputStream {
     private static final int PUSH_BACK_BUFFER_SIZE = 16;
     private byte [] pushBackBuffer = new byte[PUSH_BACK_BUFFER_SIZE];
     private int pushBackBufferUse = 0;
