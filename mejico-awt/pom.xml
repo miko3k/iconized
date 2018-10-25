@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-		<groupId>org.deletethis</groupId>
+		<groupId>org.deletethis.mejico</groupId>
 		<artifactId>mejico-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -14,21 +14,16 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>mejico-awt</name>
-    <description>The ICO reading library for Android</description>
+    <description>The Java ICO reading library</description>
     <url>https://github.com/miko3k/mejico</url>
-
-    <scm>
-        <connection>${scm}</connection>
-        <developerConnection>${scm}</developerConnection>
-    </scm>
 
     <dependencies>
         <dependency>
-            <groupId>org.deletethis</groupId>
+            <groupId>org.deletethis.mejico</groupId>
             <artifactId>mejico-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.deletethis</groupId>
+            <groupId>org.deletethis.mejico</groupId>
             <artifactId>mejico-test</artifactId>
             <scope>test</scope>
         </dependency>

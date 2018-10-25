@@ -2,20 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.deletethis</groupId>
+    <groupId>org.deletethis.mejico</groupId>
     <artifactId>mejico-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <name>mejico</name>
-    <description>Library to read ICO files</description>
+    <description>ICO file reading in Java</description>
     <url>https://github.com/miko3k/mejico</url>
 
     <properties>
         <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <scm>scm:git:ssh://github.com:miko3k/mejico.git</scm>
         <javadocFlags></javadocFlags>
     </properties>
 
@@ -39,8 +38,7 @@
     </licenses>
 
     <scm>
-        <connection>${scm}</connection>
-        <developerConnection>${scm}</developerConnection>
+        <connection>scm:git:ssh://github.com:miko3k/mejico.git</connection>
         <url>https://github.com/miko3k/mejico/tree/master</url>
     </scm>
 
@@ -148,12 +146,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.deletethis</groupId>
+                <groupId>org.deletethis.mejico</groupId>
                 <artifactId>mejico-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.deletethis</groupId>
+                <groupId>org.deletethis.mejico</groupId>
                 <artifactId>mejico-test</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>

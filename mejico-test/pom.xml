@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-		<groupId>org.deletethis</groupId>
+		<groupId>org.deletethis.mejico</groupId>
 		<artifactId>mejico-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -17,14 +17,9 @@
     <description>mejico test support</description>
     <url>https://github.com/miko3k/mejico</url>
 
-    <scm>
-        <connection>${scm}</connection>
-        <developerConnection>${scm}</developerConnection>
-    </scm>
-
     <dependencies>
         <dependency>
-            <groupId>org.deletethis</groupId>
+            <groupId>org.deletethis.mejico</groupId>
             <artifactId>mejico-core</artifactId>
         </dependency>
         <dependency>
