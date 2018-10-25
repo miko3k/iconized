@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-		<groupId>org.deletethis.mejico</groupId>
+		<groupId>org.deletethis</groupId>
 		<artifactId>mejico-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -24,11 +24,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.deletethis.mejico</groupId>
+            <groupId>org.deletethis</groupId>
             <artifactId>mejico-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.deletethis.mejico</groupId>
+            <groupId>org.deletethis</groupId>
             <artifactId>mejico-test</artifactId>
             <scope>test</scope>
         </dependency>

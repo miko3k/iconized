@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.deletethis.mejico</groupId>
+    <groupId>org.deletethis</groupId>
     <artifactId>mejico-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
@@ -16,6 +16,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <scm>scm:git:ssh://github.com:miko3k/mejico.git</scm>
+        <javadocFlags></javadocFlags>
     </properties>
 
     <developers>
@@ -97,7 +98,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <additionalOptions>-html5</additionalOptions>
+                            <additionalOptions>${javadocFlags}</additionalOptions>
                         </configuration>
                     </execution>
                 </executions>
@@ -147,12 +148,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.deletethis.mejico</groupId>
+                <groupId>org.deletethis</groupId>
                 <artifactId>mejico-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.deletethis.mejico</groupId>
+                <groupId>org.deletethis</groupId>
                 <artifactId>mejico-test</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>

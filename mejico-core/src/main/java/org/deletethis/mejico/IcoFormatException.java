@@ -22,7 +22,7 @@ package org.deletethis.mejico;
 import java.io.IOException;
 
 /**
- * An exception indicating there is a problem with <kbd>.ico</kbd> file.
+ * An exception indicating there is a problem with {@code .ico} file.
  */
 public class IcoFormatException extends IOException {
     static final long serialVersionUID = 2880826308501782032L;
