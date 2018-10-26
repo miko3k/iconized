@@ -1,6 +1,6 @@
-# `mejico`
+# mejico
 
-A multiplatform `.ico` reading library.
+The chingón `.ico` reading library.
 
 ## Overview
 

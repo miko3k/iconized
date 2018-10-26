@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <javadocFlags></javadocFlags>
+        <javadocFlags>-html5</javadocFlags>
     </properties>
 
     <developers>
@@ -97,6 +97,9 @@
                         </goals>
                         <configuration>
                             <additionalOptions>${javadocFlags}</additionalOptions>
+                            <quiet>true</quiet>
+                            <detectLinks>false</detectLinks>
+                            <detectJavaApiLink>false</detectJavaApiLink>
                         </configuration>
                     </execution>
                 </executions>

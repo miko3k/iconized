@@ -31,15 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-/**
- * The Java parser of ICO files.
- *
- * It uses ImageIO to load PNG files. {@link BufferedImage} is used as the output format.
- */
-class IconReaderImpl extends BaseIconReader<BufferedImage> {
-    public IconReaderImpl(InputStream stream) {
-        super(stream);
-    }
+class AwtImageDecoder extends AbstractImageDecoder<BufferedImage> {
 
     private static class AwtImage implements WritableImage {
         private final int [] data;
@@ -102,7 +94,7 @@ class IconReaderImpl extends BaseIconReader<BufferedImage> {
             imageReader.setInput(input);
             return imageReader.read(0);
         } catch (IOException e) {
-            throw new IcoFormatException("Invalid PNG file: " + e.getMessage(), e);
+            throw new IconFormatException("Invalid PNG file: " + e.getMessage(), e);
         }
     }
 }

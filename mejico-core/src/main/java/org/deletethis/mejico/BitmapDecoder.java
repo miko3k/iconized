@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * The decoder of BMP data in <code>.ico</code> file.
+ * The decoder of BMP data in {@code .ico} file.
  *
  * It is not a general purpose BMP decoder, in particular it expects absence of Bitmap file header.
  */
@@ -58,7 +58,7 @@ public class BitmapDecoder<T extends WritableImage> {
 
         int infoHeaderSize = in.readIntelInt();
         if (infoHeaderSize != BMP_MAGIC) {
-            throw new IcoFormatException("weird header size: " + infoHeaderSize);
+            throw new IconFormatException("weird header size: " + infoHeaderSize);
         }
 
         // read header
@@ -215,7 +215,7 @@ public class BitmapDecoder<T extends WritableImage> {
             return pm;
         }
 
-        throw new IcoFormatException("Unrecognized bitmap format: bpp = " + bpp + ", compression = " + compression);
+        throw new IconFormatException("Unrecognized bitmap format: bpp = " + bpp + ", compression = " + compression);
     }
 
     /**

@@ -20,18 +20,13 @@
 package org.deletethis.mejico;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * An exception indicating there is a problem with {@code .ico} file.
+ * An interface responsible to decode the image based on first 4 bytes.
+ *
+ * @param <T> Type of returned image
  */
-public class IcoFormatException extends IOException {
-    static final long serialVersionUID = 2880826308501782032L;
-
-    public IcoFormatException(String message) {
-        super(message);
-    }
-
-    public IcoFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface ImageDecoder<T> {
+    T decodeImage(int magic, InputStream stream) throws IOException;
 }

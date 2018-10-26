@@ -22,20 +22,16 @@ package org.deletethis.mejico.android;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import org.deletethis.mejico.*;
+import org.deletethis.mejico.AbstractImageDecoder;
+import org.deletethis.mejico.ArrayImage;
+import org.deletethis.mejico.BitmapDecoder;
+import org.deletethis.mejico.IconFormatException;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * The parser of ICO files for Android.
- */
-class IconReaderImpl extends BaseIconReader<Bitmap> {
+class AndroidImageDecoder extends AbstractImageDecoder<Bitmap> {
     private static final BitmapDecoder<ArrayImage> BMP_DECODER = new BitmapDecoder<>(ArrayImage.FACTORY);
-
-    public IconReaderImpl(InputStream stream) {
-        super(stream);
-    }
 
     @Override
     protected Bitmap decodeBmp(InputStream inputStream) throws IOException {
@@ -47,6 +43,10 @@ class IconReaderImpl extends BaseIconReader<Bitmap> {
 
     @Override
     protected Bitmap decodePng(InputStream inputStream) throws IOException {
-        return BitmapFactory.decodeStream(inputStream);
+        Bitmap result = BitmapFactory.decodeStream(inputStream);
+        if(result == null) {
+            throw new IconFormatException("Unable to decode PNG file");
+        }
+        return result;
     }
 }

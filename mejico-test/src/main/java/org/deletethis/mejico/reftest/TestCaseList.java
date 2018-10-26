@@ -1,6 +1,6 @@
 package org.deletethis.mejico.reftest;
 
-import org.deletethis.mejico.IcoFormatException;
+import org.deletethis.mejico.IconFormatException;
 
 public class TestCaseList {
 
@@ -139,10 +139,10 @@ public class TestCaseList {
         R.ok(DIR_MOZPNG, "ico-size-7x7-png.ico", "ico-size-7x7-png.png");
         R.ok(DIR_MOZPNG, "transparent-png.ico", "transparent-png.png");
     
-        R.fail(DIR_CURRUPTED, "invalid-bpp.ico", IcoFormatException.class);
-        R.fail(DIR_CURRUPTED, "invalid-compression.ico", IcoFormatException.class);
-        R.fail(DIR_CURRUPTED, "invalid-compression-RLE4.ico", IcoFormatException.class);
-        R.fail(DIR_CURRUPTED, "invalid-compression-RLE8.ico", IcoFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-bpp.ico", IconFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-compression.ico", IconFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-compression-RLE4.ico", IconFormatException.class);
+        R.fail(DIR_CURRUPTED, "invalid-compression-RLE8.ico", IconFormatException.class);
     }
 
     public static TestCases<FailTestCase> getFailTestCases() {
