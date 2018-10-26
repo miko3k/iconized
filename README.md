@@ -1,6 +1,6 @@
 # mejico
 
-The library to read .ico files in Java. Chingón.
+A library to read .ico files in Java. Chingón.
 
 ## Overview
 
