@@ -4,7 +4,7 @@ A library to read .ico files in Java. Chingón.
 
 ## Overview
 
-The `mejico` a small library to read Microsoft ICO format in pure java.
+The `mejico` a small library to read Microsoft .ico format in Java.
 
 * a commercial-friendly license
 * no dependencies on third-party libraries
