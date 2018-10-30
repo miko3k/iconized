@@ -68,7 +68,7 @@ abstract public class AbstractIconParser<T>  {
         Objects.requireNonNull(errorListener, "error listener is null");
         try {
             IconReader<T> iconReader = openReader(inputStream);
-            FileMetadata fileMetadata = iconReader.readFileMetadata();
+            FileMetadata fileMetadata = iconReader.readMetadata();
 
             Map<Integer, T> data = new TreeMap<>();
 

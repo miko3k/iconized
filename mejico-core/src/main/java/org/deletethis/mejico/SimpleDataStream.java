@@ -103,4 +103,12 @@ public class SimpleDataStream extends FilterInputStream {
         }
         return (byte)data;
     }
+
+    public int readUnsignedByte() throws IOException {
+        return readByte()&0xFF;
+    }
+
+    public int readUnsignedShort() throws IOException {
+        return readShort()&0xFFFF;
+    }
 }

@@ -21,24 +21,38 @@
 package org.deletethis.mejico;
 
 /**
- * Metadata about a single icon or cursor image.
+ * Metadata about a single image or cursor.
  */
 public class ImageMetadata {
-    /*int getWidth();
-    int getHeight();
-    int getColorCount();
-    int getColorsPlansOrHotspotX();
-    int getBppOrHotspotY();*/
     private final int index;
     private final int dataSize;
     private final int dataOffset;
+    private final Integer width;
+    private final Integer height;
+    private final Integer colorCount;
+    private final Integer colorPlanes;
+    private final Integer bpp;
+    private final Integer hotspotX;
+    private final Integer hotspotY;
 
-    public ImageMetadata(int index, int dataSize, int dataOffset) {
+    public ImageMetadata(int index, int dataSize, int dataOffset, Integer width, Integer height,
+                         Integer colorCount, Integer colorPlanes, Integer bpp, Integer hotspotX, Integer hotspotY) {
         this.index = index;
         this.dataSize = dataSize;
         this.dataOffset = dataOffset;
+        this.width = width;
+        this.height = height;
+        this.colorCount = colorCount;
+        this.colorPlanes = colorPlanes;
+        this.bpp = bpp;
+        this.hotspotX = hotspotX;
+        this.hotspotY = hotspotY;
     }
 
+    /** Index of current entry in file.
+     * <p>
+     * List of {@link ImageMetadata} structures will be returned by increasing data offset,
+     * so this may be used to reconstruct original order as declared in {@code .ico} file */
     public int getIndex() {
         return index;
     }
@@ -49,5 +63,33 @@ public class ImageMetadata {
 
     public int getDataOffset() {
         return dataOffset;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public Integer getColorCount() {
+        return colorCount;
+    }
+
+    public Integer getColorPlanes() {
+        return colorPlanes;
+    }
+
+    public Integer getBpp() {
+        return bpp;
+    }
+
+    public Integer getHotspotX() {
+        return hotspotX;
+    }
+
+    public Integer getHotspotY() {
+        return hotspotY;
     }
 }

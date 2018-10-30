@@ -33,6 +33,16 @@ import java.util.Objects;
  * <p>
  * It reads file header and decodes individual images using {@link ImageDecoder}.
  * <p>
+ * First call should be the call to {@link #readMetadata()} followed by one or
+ * more calls to {@link #readImage(ImageMetadata)}. This calls should be issued
+ * in the same order as returned in {@link FileMetadata}.
+ * <p>
+ * This class seeks balance between usable and low level API. We could also
+ * provide way to read individual icon directory entries one by one, but
+ * such an API would be harder to use as user would have to sort the entries
+ * by hand. In addition, cost of reading all the entries is not significant compared
+ * to cost of reading images themselves.
+ *
  * @param <T> Platform dependent image type
  */
 public class IconReader<T>  {
@@ -45,20 +55,26 @@ public class IconReader<T>  {
         this.stream = new IconInputStream(stream);
     }
 
-    private ImageMetadata readImageMetadata(int n) throws IOException {
+    private ImageMetadata readImageMetadata(boolean isCursor, int n) throws IOException {
         SimpleDataStream data = new SimpleDataStream(stream);
-        // information about colors etc are quite unreliable, coz they tend to overflow with big values,
-        // we will just ignore them
-        // discard:
-        //    - width, height, number of colors, and reserved
-        //    - (for ICO) planes and bpp information
-        //    - (for CUR) hotspot coordinates
-        data.skipFully(8);
+        int width = data.readUnsignedByte();
+        int height = data.readUnsignedByte();
+        int colorCount = data.readUnsignedByte();
+        data.skipFully(1);
+        int colorPlanes = data.readUnsignedShort();
+        int bpp = data.readUnsignedShort();
 
         int dataSize = data.readIntelInt();
         int dataOffset = data.readIntelInt();
 
-        return new ImageMetadata(n, dataSize, dataOffset);
+        return new ImageMetadata(n, dataSize, dataOffset,
+                width==0 ? null : width,
+                height==0 ? null : height,
+                colorCount==0 ? null : colorCount,
+                isCursor ? null : colorPlanes,
+                isCursor ? null : bpp,
+                isCursor ? colorPlanes : null,
+                isCursor ? bpp : null);
     }
 
     /**
@@ -72,7 +88,7 @@ public class IconReader<T>  {
      * @throws IOException when IO error occurs
      */
 
-    public FileMetadata readFileMetadata() throws IOException {
+    public FileMetadata readMetadata() throws IOException {
         SimpleDataStream data = new SimpleDataStream(stream);
 
         if (data.readIntelShort() != 0) {
@@ -89,9 +105,9 @@ public class IconReader<T>  {
         }
 
         final List<ImageMetadata> items = new ArrayList<>(numberOfImages);
-
+        boolean isCursor = type == CURSOR;
         for (int currentImage = 0; currentImage < numberOfImages; ++currentImage) {
-            ImageMetadata imageMetadata = readImageMetadata(currentImage);
+            ImageMetadata imageMetadata = readImageMetadata(isCursor, currentImage);
             items.add(imageMetadata);
         }
         Collections.sort(items, new Comparator<ImageMetadata>() {
@@ -105,7 +121,7 @@ public class IconReader<T>  {
             }
         });
 
-        return new FileMetadata(type == CURSOR, Collections.unmodifiableList(items));
+        return new FileMetadata(isCursor, Collections.unmodifiableList(items));
     }
 
     /**
