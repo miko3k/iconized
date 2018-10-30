@@ -22,9 +22,12 @@ package org.deletethis.mejico;
 import java.util.Arrays;
 
 /**
- * A rectangular array of pixels stored as <code>int []</code>.
+ * A rectangular array of pixels stored as {@code int []}.
  * <p>
  * It's obviously completely platform independent!
+ * <p>
+ * Individual pixels should be stored as 32-bit ARGB values
+ * but currently this class does not make any assumptions on this fact.
  */
 public class ArrayImage implements WritableImage {
     private final int width, height;
