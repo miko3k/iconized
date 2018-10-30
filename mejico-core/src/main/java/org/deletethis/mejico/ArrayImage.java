@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 /**
  * A rectangular array of pixels stored as <code>int []</code>.
- *
+ * <p>
  * It's obviously completely platform independent!
  */
 public class ArrayImage implements WritableImage {

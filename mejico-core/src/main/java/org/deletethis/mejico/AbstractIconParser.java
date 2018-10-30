@@ -27,16 +27,19 @@ import java.util.*;
 
 /**
  * Main icon loader.
- *
+ * <p>
  * High level interface consists of various {@code getIcons} methods. All of them
- * automatically close the stream which is passed in. Always, also in a case of exception.
- *
- * One might open an {@link IconReader}, which allows more fine grained control which images will get decoded.
- *
+ * always automatically close the stream which is passed in. The stream is closed also if exception
+ * is thrown.
+ * <p>
+ * Lover level interface is provided by various overloads of {@code openReader}, which
+ * return {@link IconReader}. This enables more fine grained control over which images get decoded.
+ * <p>
  * This class is expected to be overridden by platform implementation.
- * Only overridable method is {@link #openReader(InputStream)} which does the core work.
+ * Only overridable method is {@link #openReader(InputStream)}.
  *
- * @param <T>
+ * @param <T> The type of image produced
+ *
  */
 abstract public class AbstractIconParser<T>  {
     /**

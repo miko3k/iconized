@@ -55,8 +55,8 @@ public class IconReader<T>  {
         this.stream = new IconInputStream(stream);
     }
 
-    private ImageMetadata readImageMetadata(boolean isCursor, int n) throws IOException {
-        SimpleDataStream data = new SimpleDataStream(stream);
+    private static ImageMetadata readImageMetadata(SimpleDataStream data, boolean isCursor, int n) throws IOException {
+
         int width = data.readUnsignedByte();
         int height = data.readUnsignedByte();
         int colorCount = data.readUnsignedByte();
@@ -107,7 +107,7 @@ public class IconReader<T>  {
         final List<ImageMetadata> items = new ArrayList<>(numberOfImages);
         boolean isCursor = type == CURSOR;
         for (int currentImage = 0; currentImage < numberOfImages; ++currentImage) {
-            ImageMetadata imageMetadata = readImageMetadata(isCursor, currentImage);
+            ImageMetadata imageMetadata = readImageMetadata(data, isCursor, currentImage);
             items.add(imageMetadata);
         }
         Collections.sort(items, new Comparator<ImageMetadata>() {
@@ -125,9 +125,9 @@ public class IconReader<T>  {
     }
 
     /**
-     * Decodes a single image and returns the image data.
+     * Decodes a single images.
      * <p>
-     * It seeks forward in the stream in order to find it first and then delegates decoding to {@link ImageDecoder}.
+     * It seeks forward in the stream in order to find it first and then delegates reading to {@link ImageDecoder}.
      *
      * @param meta identifies image to be decoded
      *
