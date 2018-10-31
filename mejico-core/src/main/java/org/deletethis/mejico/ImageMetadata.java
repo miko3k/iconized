@@ -17,33 +17,37 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.deletethis.mejico.android;
 
-import android.graphics.Bitmap;
-import org.deletethis.mejico.AbstractIconParser;
-import org.deletethis.mejico.IconReader;
-
-import java.io.InputStream;
+package org.deletethis.mejico;
 
 /**
- * The parser of ICO files for Android.
+ * Metadata about a single icon or cursor image.
  */
-public class IconParser extends AbstractIconParser<Bitmap> {
-    private static IconParser INSTANCE = new IconParser();
-    private static AndroidImageDecoder IMAGE_DECODER = new AndroidImageDecoder();
+public class ImageMetadata {
+    /*int getWidth();
+    int getHeight();
+    int getColorCount();
+    int getColorsPlansOrHotspotX();
+    int getBppOrHotspotY();*/
+    private final int index;
+    private final int dataSize;
+    private final int dataOffset;
 
-    /**
-     * Returns the singleton instance.
-     *
-     * @return the icon parser
-     */
-    public static IconParser getInstance() { return INSTANCE; }
+    public ImageMetadata(int index, int dataSize, int dataOffset) {
+        this.index = index;
+        this.dataSize = dataSize;
+        this.dataOffset = dataOffset;
+    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IconReader<Bitmap> openReader(InputStream stream) {
-        return new IconReader<>(IMAGE_DECODER, stream);
+    public int getIndex() {
+        return index;
+    }
+
+    public int getDataSize() {
+        return dataSize;
+    }
+
+    public int getDataOffset() {
+        return dataOffset;
     }
 }

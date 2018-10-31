@@ -1,10 +1,10 @@
-# `mejico`
+# mejico
 
-A multiplatform `.ico`/`.cur` reading library.
+A library to read `.ico`/`.cur` files in Java. Chingón.
 
 ## Overview
 
-The `mejico` a small library to read Microsoft ICO/CUR format in pure java.
+The `mejico` a small library to read Microsoft `.ico` or `.cur` format in java.
 
 * a commercial-friendly license
 * no dependencies on third-party libraries

@@ -23,38 +23,68 @@ package org.deletethis.mejico;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+/**
+ * Main icon loader.
+ *
+ * High level interface consists of various {@code getIcons} methods. All of them
+ * automatically close the stream which is passed in. Always, also in a case of exception.
+ *
+ * One might open an {@link IconReader}, which allows more fine grained control which images will get decoded.
+ *
+ * This class is expected to be overridden by platform implementation.
+ * Only overridable method is {@link #openReader(InputStream)} which does the core work.
+ *
+ * @param <T>
+ */
 abstract public class AbstractIconParser<T>  {
+    /**
+     * Returns an instance of {@link IconReader} which enables to read file metadata and individual images.
+     *
+     * @param stream the input stream
+     * @return an instance of icon reader
+     */
     abstract public IconReader<T> openReader(InputStream stream);
 
-    final public List<T> getIcons(byte [] data) throws IOException {
-        return getIcons(data, 0, data.length);
+    final public IconReader<T> openReader(byte[] data) {
+        return openReader(new ByteArrayInputStream(data));
     }
 
-    final public List<T> getIcons(byte [] data, int offset, int length) throws IOException {
-        return getIcons(new ByteArrayInputStream(data, offset, length));
+    final public List<T> getIcons(byte [] data) throws IOException {
+        return getIcons(new ByteArrayInputStream(data), IconErrorListener.BLACKHOLE);
+    }
+
+    final public List<T> getIcons(byte [] data, IconErrorListener errorListener) throws IOException {
+        return getIcons(new ByteArrayInputStream(data), errorListener);
     }
 
     final public List<T> getIcons(InputStream inputStream) throws IOException {
+        return getIcons(inputStream, IconErrorListener.BLACKHOLE);
+    }
 
+    final public List<T> getIcons(InputStream inputStream, IconErrorListener errorListener) throws IOException {
+        Objects.requireNonNull(inputStream, "input stream is null");
+        Objects.requireNonNull(errorListener, "error listener is null");
         try {
             IconReader<T> iconReader = openReader(inputStream);
-            List<IconMeta> iconMetas = iconReader.readMetadata();
+            FileMetadata fileMetadata = iconReader.readFileMetadata();
+
             Map<Integer, T> data = new TreeMap<>();
 
-            try {
-                for(IconMeta m: iconMetas) {
-                    T t = iconReader.readImage(m);
-                    data.put(m.getImageNumber(), t);
+            for(ImageMetadata item: fileMetadata.getImageMetadata()) {
+                try {
+                    T t = iconReader.readImage(item);
+                    data.put(item.getIndex(), t);
+                } catch(IconFormatException ex) {
+                    errorListener.onIconError(item, ex);
                 }
-            } catch(IcoFormatException ex) {
-                // no nothing, we could use a version which reports this somehow
             }
-            return new ArrayList<>(data.values());
+            ArrayList<T> result = new ArrayList<>(data.values());
+            if(result.isEmpty()) {
+                throw new IconFormatException("No icons successfully read");
+            }
+            return result;
         } finally {
             inputStream.close();
         }

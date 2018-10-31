@@ -1,5 +1,6 @@
 package org.deletethis.mejico.reftest;
 
+import org.deletethis.mejico.IconErrorListener;
 import org.deletethis.mejico.awt.IconParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,8 @@ public class RefTests {
 
     @Test
     public void testLoad() throws IOException {
-        List<BufferedImage> images = IconParser.getInstance().getIcons(currentTestCase.getIcoFile());
+        List<BufferedImage> images = IconParser.getInstance().getIcons(currentTestCase.getIcoFile(),
+                IconErrorListener.MAKE_FATAL);
 
         List<byte[]> pngs = currentTestCase.getResultAsPng();
 
