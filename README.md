@@ -17,7 +17,7 @@ and this library fails to do so.
 
 ### Repositories
 
-Use `mejico-awt` using Maving
+Usage of `mejico-awt` in Java AWT application using Maven
 
 ```xml
 <dependency>
@@ -27,7 +27,7 @@ Use `mejico-awt` using Maving
 </dependency>
 ```
 
-Usage `mejico-awt` using Gradle
+Usage of `mejico-awt` in an Android application using Gradle
  
 ```groovy
 implementation 'org.deletethis.mejico:mejico-android:1.0.0'
