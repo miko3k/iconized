@@ -58,10 +58,6 @@ public class ImageMetadata {
         this.hotspotY = hotspotY;
     }
 
-    /** Index of current entry in file.
-     * <p>
-     *
-     * so this may be used to reconstruct original order as declared in {@code .ico} file */
     public int getIndex() {
         return index;
     }

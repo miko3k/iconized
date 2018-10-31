@@ -5,7 +5,7 @@
     <groupId>org.deletethis.mejico</groupId>
     <artifactId>mejico-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>mejico</name>
     <description>ICO file reading in Java</description>
@@ -169,12 +169,12 @@
             <dependency>
                 <groupId>org.deletethis.mejico</groupId>
                 <artifactId>mejico-core</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.deletethis.mejico</groupId>
                 <artifactId>mejico-test</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

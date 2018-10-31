@@ -28,19 +28,34 @@ separate Android and AWT artifacts.
 
 ## Usage
 
-One uses singleton class `IconParser` on both 
-[AWT](mejico-awt/src/main/java/org/deletethis/mejico/awt/IconParser.java)
-and
-[Android](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java).
-The instance is obtained using static `getInstance()` method.
+There are two versions of `IconParser` one in   
+[`org.deletethis.mejico.awt`](mejico-awt/src/main/java/org/deletethis/mejico/awt/IconParser.java)
+and other in 
+[`org.deletethis.mejico.android`](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java).
+You must always obtain a instance using static method `getInstance()`.
 
 Check [`AbstractIconParser`](mejico-core/src/main/java/org/deletethis/mejico/AbstractIconParser.java)
 to see most of the API. It can return a `List` of images contained in `.ico` file or an
 Check [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java)
 to selectively decode images and/or access metadata (such as hotspot position in `.cur` file).  
 
-AWT
+Add following dependency using AWT and Maven
+```xml
+<dependency>
+  <groupId>org.deletethis.mejico</groupId>
+  <artifactId>mejico-awt</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+or 
+```groovy
+implementation 'org.deletethis.mejico:mejico-android:1.0.0'
+```
+
+### Examples
+
 ```java
+// AWT example
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,8 +71,8 @@ class Main {
 }
 ```
 
-Android
 ```java
+// Android example
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;

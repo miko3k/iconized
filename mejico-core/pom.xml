@@ -7,11 +7,11 @@
     <parent>
 		<groupId>org.deletethis.mejico</groupId>
 		<artifactId>mejico-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>mejico-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>mejico-core</name>
     <description>A bunch of portable classes to read ICO files</description>
