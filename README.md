@@ -29,14 +29,14 @@ separate Android and AWT artifacts.
 ## Usage
 
 One uses singleton `IconParser` on both 
-[AWT](blob/master/mejico-awt/src/main/java/org/deletethis/mejico/android/IconParser.java)
+[AWT](mejico-awt/src/main/java/org/deletethis/mejico/android/IconParser.java)
 and
-[Android](blob/master/mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java)
+[Android](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java)
 using static `getInstance()` method.
 
-Check [`AbstractIconParser`](blob/master/mejico-core/src/main/java/org/deletethis/mejico/AbstractIconParser.java)
+Check [`AbstractIconParser`](mejico-core/src/main/java/org/deletethis/mejico/AbstractIconParser.java)
 to see most of the API. It can return a `List` of images contained in `.ico` file or an
-Check [`IconReader`](blob/master/mejico-core/src/main/java/org/deletethis/mejico/IconReader.java)
+Check [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java)
 to selectively decode images and/or access metadata (such as hotspot position in `.cur` file).  
 
 AWT
