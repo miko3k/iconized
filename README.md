@@ -15,6 +15,25 @@ All versions should be supported. Hopefully. Please file a bug and help to impro
 if you find an `.ico` or `.cur` file in the wild, which can be read by any version of Windows 
 and this library fails to do so. 
 
+### Repositories
+
+Use `mejico-awt` using Maving
+
+```xml
+<dependency>
+  <groupId>org.deletethis.mejico</groupId>
+  <artifactId>mejico-awt</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+Usage `mejico-awt` using Gradle
+ 
+```groovy
+implementation 'org.deletethis.mejico:mejico-android:1.0.0'
+```
+
+
 ### Structure
 
 Project is split into multiple artifacts:
@@ -38,19 +57,6 @@ Check [`AbstractIconParser`](mejico-core/src/main/java/org/deletethis/mejico/Abs
 to see most of the API. It can return a `List` of images contained in `.ico` file or an
 Check [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java)
 to selectively decode images and/or access metadata (such as hotspot position in `.cur` file).  
-
-Add following dependency using AWT and Maven
-```xml
-<dependency>
-  <groupId>org.deletethis.mejico</groupId>
-  <artifactId>mejico-awt</artifactId>
-  <version>1.0.0</version>
-</dependency>
-```
-or 
-```groovy
-implementation 'org.deletethis.mejico:mejico-android:1.0.0'
-```
 
 ### Examples
 
