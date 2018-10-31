@@ -1,10 +1,10 @@
 # mejico
 
-A library to read .ico files in Java. Chingón.
+A library to read `.ico`/`.cur` files in Java. Chingón.
 
 ## Overview
 
-The `mejico` a small library to read Microsoft .ico format in Java.
+The `mejico` a small library to read Microsoft `.ico` or `.cur` format in java.
 
 * a commercial-friendly license
 * no dependencies on third-party libraries
@@ -12,7 +12,7 @@ The `mejico` a small library to read Microsoft .ico format in Java.
 * fully compatible with .ico format
 
 All versions should be supported. Hopefully. Please file a bug and help to improve this library
-if you find an `.ico` file in the wild, which can be read by any version of Windows 
+if you find an `.ico` or `.cur` file in the wild, which can be read by any version of Windows 
 and this library fails to do so. 
 
 ### Structure
@@ -28,8 +28,16 @@ separate Android and AWT artifacts.
 
 ## Usage
 
-API is the same on Android and AWT, one always uses `IconParser.getInstance().getIcons(...)`.
-The package of `IconParser` and returned type is platform specific.
+One uses singleton class `IconParser` on both 
+[AWT](mejico-awt/src/main/java/org/deletethis/mejico/awt/IconParser.java)
+and
+[Android](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java).
+The instance is obtained using static `getInstance()` method.
+
+Check [`AbstractIconParser`](mejico-core/src/main/java/org/deletethis/mejico/AbstractIconParser.java)
+to see most of the API. It can return a `List` of images contained in `.ico` file or an
+Check [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java)
+to selectively decode images and/or access metadata (such as hotspot position in `.cur` file).  
 
 AWT
 ```java
@@ -46,7 +54,6 @@ class Main {
         // do something with images
     }    
 }
-
 ```
 
 Android
