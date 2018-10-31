@@ -28,11 +28,11 @@ separate Android and AWT artifacts.
 
 ## Usage
 
-One uses singleton `IconParser` on both 
-[AWT](mejico-awt/src/main/java/org/deletethis/mejico/android/IconParser.java)
+One uses singleton class `IconParser` on both 
+[AWT](mejico-awt/src/main/java/org/deletethis/mejico/awt/IconParser.java)
 and
-[Android](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java)
-using static `getInstance()` method.
+[Android](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java).
+The instance is obtained using static `getInstance()` method.
 
 Check [`AbstractIconParser`](mejico-core/src/main/java/org/deletethis/mejico/AbstractIconParser.java)
 to see most of the API. It can return a `List` of images contained in `.ico` file or an
