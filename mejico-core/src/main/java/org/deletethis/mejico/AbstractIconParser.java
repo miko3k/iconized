@@ -29,11 +29,13 @@ import java.util.*;
  * Main icon loader.
  * <p>
  * High level interface consists of various {@code getIcons} methods. All of them
- * always automatically close the stream which is passed in. The stream is closed also if exception
+ * always automatically close the stream which is passed in. The stream is closed even if an exception
  * is thrown.
  * <p>
- * Lover level interface is provided by various overloads of {@code openReader}, which
+ * Lower level interface is provided by various overloads of {@code openReader}, which
  * return {@link IconReader}. This enables more fine grained control over which images get decoded.
+ * These methods ignore non-fatal errors by default, an {@link IconErrorListener} might be used to alter
+ * this behaviour.
  * <p>
  * This class is expected to be overridden by platform implementation.
  * Only overridable method is {@link #openReader(InputStream)}.
@@ -44,28 +46,85 @@ import java.util.*;
 abstract public class AbstractIconParser<T>  {
     /**
      * Returns an instance of {@link IconReader} which enables to read file metadata and individual images.
+     * <p>
+     * Icon reader is not closed automatically and should be used with {@code try} with resources.
      *
      * @param stream the input stream
-     * @return an instance of icon reader
+     * @return an instance of the icon reader
      */
     abstract public IconReader<T> openReader(InputStream stream);
 
+    /**
+     * Returns an {@link IconReader} to read the byte array. See {@link #openReader(InputStream)} for further detail.
+     *
+     * @param data byte array to be read
+     * @return an instance of the icon reader
+     */
     final public IconReader<T> openReader(byte[] data) {
         return openReader(new ByteArrayInputStream(data));
     }
 
+    /**
+     * Returns images from the icon file contained in specified byte array. Non-fatal errors
+     * are silently ignored. See {@link #getIcons(InputStream, IconErrorListener)} for further details.
+     * <p>
+     * To read only a part of the byte array, construct {@link ByteArrayInputStream} yourself.
+     *
+     * @param data {@code .ico} file as an byte array
+     * @return the list of images from icon file
+     * @throws IOException when IO error occurs
+     */
     final public List<T> getIcons(byte [] data) throws IOException {
         return getIcons(new ByteArrayInputStream(data), IconErrorListener.BLACKHOLE);
     }
 
+    /**
+     * Returns images from the icon file contained in specified byte array.
+     * See {@link #getIcons(InputStream, IconErrorListener)} for further details.
+     * <p>
+     * To read only a part of the byte array, construct {@link ByteArrayInputStream} yourself.
+     *
+     * @param data {@code .ico} file as an byte array
+     * @param errorListener callback to be called when an error occurs
+     * @return the list of images from icon file
+     * @throws IOException when IO error occurs
+     */
     final public List<T> getIcons(byte [] data, IconErrorListener errorListener) throws IOException {
         return getIcons(new ByteArrayInputStream(data), errorListener);
     }
 
+    /**
+     * Returns icon images from specified {@link InputStream}. Non-fatal errors
+     * are ignored. See {@link #getIcons(InputStream, IconErrorListener)} for further details.
+     * <p>
+     * To read only a part of the byte array, construct {@link ByteArrayInputStream} yourself.
+     *
+     * @param inputStream the stream to read from
+     * @return the list of images from icon file
+     * @throws IOException when IO error occurs
+     */
     final public List<T> getIcons(InputStream inputStream) throws IOException {
         return getIcons(inputStream, IconErrorListener.BLACKHOLE);
     }
 
+    /**
+     * Returns icons from specified {@link InputStream}. An error listener is notified, when a problem occurs.
+     * <p>
+     * The icons are returned in the same order as specified in icon directory, rather than ordering
+     * of {@link ImageMetadata} in {@link FileMetadata}.
+     * <p>
+     * Errors can be suppressed by passing {@link IconErrorListener#BLACKHOLE} to error listener or made
+     * fatal by using {@link IconErrorListener#MAKE_FATAL}. Listener might also simply log errors
+     * for further diagnosis.
+     * <p>
+     * In case no image is read, an {@link IconFormatException} is thrown, rather than an empty list.
+     *
+     * @param inputStream the stream to read from
+     * @param errorListener callback to notify in case recoverable error
+     *
+     * @return the list of images in platform format
+     * @throws IOException when IO error occurs
+     */
     final public List<T> getIcons(InputStream inputStream, IconErrorListener errorListener) throws IOException {
         Objects.requireNonNull(inputStream, "input stream is null");
         Objects.requireNonNull(errorListener, "error listener is null");

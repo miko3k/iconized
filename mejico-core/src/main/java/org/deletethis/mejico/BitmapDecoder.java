@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 /**
  * The decoder of BMP data in {@code .ico} file.
- *
+ * <p>
  * It is not a general purpose BMP decoder, in particular it expects absence of Bitmap file header.
  */
 public class BitmapDecoder<T extends WritableImage> {

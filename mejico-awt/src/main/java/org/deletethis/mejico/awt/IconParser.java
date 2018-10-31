@@ -26,18 +26,19 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
 /**
- * The Java parser of ICO files.
+ * The Java parser of {@code .ico}/{@code .cur} files.
  *
  * It uses ImageIO to load PNG files. {@link BufferedImage} is used as the output format.
  */
 public class IconParser extends AbstractIconParser<BufferedImage> {
     private static IconParser INSTANCE = new IconParser();
     private static AwtImageDecoder IMAGE_DECODER = new AwtImageDecoder();
+    private IconParser() {}
 
     /**
-     * Returns the singleton instance.
+     * Returns the singleton instance. This method is fast, result does not need to be cached.
      *
-     * @return the icon parser
+     * @return the {@link IconParser} instance
      */
     public static IconParser getInstance() { return INSTANCE; }
 

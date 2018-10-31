@@ -22,6 +22,15 @@ package org.deletethis.mejico;
 
 /**
  * Metadata about a single image or cursor.
+ * <p>
+ * Contains information from icon directory.
+ * <p>
+ * Many fields are optional, for example width/height of 0 (meaning not specified) will be presented as {@code null}.
+ * Other depend on a fact whatever current file is an icon or a cursor, for example hotspot position.
+ * <p>
+ * {@link #getIndex()} returns index of current image in file directory,
+ * because the list of {@link ImageMetadata} structures will be ordered by data offset, because that is the
+ * order they must be decoded in. This field allows to reconstruct original ordering, if needed.
  */
 public class ImageMetadata {
     private final int index;
@@ -51,7 +60,7 @@ public class ImageMetadata {
 
     /** Index of current entry in file.
      * <p>
-     * List of {@link ImageMetadata} structures will be returned by increasing data offset,
+     *
      * so this may be used to reconstruct original order as declared in {@code .ico} file */
     public int getIndex() {
         return index;

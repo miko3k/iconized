@@ -27,7 +27,7 @@ import java.util.Arrays;
  * It's obviously completely platform independent!
  * <p>
  * Individual pixels should be stored as 32-bit ARGB values
- * but currently this class does not make any assumptions on this fact.
+ * but this class does not make any assumptions on this fact.
  */
 public class ArrayImage implements WritableImage {
     private final int width, height;

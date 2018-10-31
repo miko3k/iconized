@@ -19,23 +19,27 @@
  */
 package org.deletethis.mejico.android;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import org.deletethis.mejico.AbstractIconParser;
 import org.deletethis.mejico.IconReader;
 
+import java.awt.image.renderable.ContextualRenderedImageFactory;
 import java.io.InputStream;
+import java.util.List;
 
 /**
- * The parser of ICO files for Android.
+ * The parser of {@code .ico}/{@code .cur} files for Android.
  */
 public class IconParser extends AbstractIconParser<Bitmap> {
     private static IconParser INSTANCE = new IconParser();
     private static AndroidImageDecoder IMAGE_DECODER = new AndroidImageDecoder();
+    private IconParser() {}
 
     /**
-     * Returns the singleton instance.
+     * Returns the singleton instance. This method is fast, result does not need to be cached.
      *
-     * @return the icon parser
+     * @return the {@link IconParser} instance
      */
     public static IconParser getInstance() { return INSTANCE; }
 
