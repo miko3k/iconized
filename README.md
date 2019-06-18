@@ -19,9 +19,10 @@ and this library fails to do so.
 
 I decided to stop publishing to Maven Central, coz it is annoying. 
 
-Simply snatch this from it from [jitpack](https://jitpack.io/#miko3k/mejico/26b5f1d8c4).
+Simply snatch this from it from [jitpack](https://jitpack.io/#miko3k/mejico/26b5f1d8c4). Do not forget to
+select correct subproject in the dropdown menu!
 
-Should this artifact find heavy use, I might consider publishing to Maven Cetral again.
+Should this project find heavy use, I might consider publishing to Maven Central again.
 
 
 ### Structure
