@@ -39,15 +39,18 @@ to supply your own PNG (or even BMP) decoder.
 
 ## Usage
 
-There are two classes with static factory methods to obtain an `IconParser`, depending on the platform:
-* [`AwtMejico.getIconParser()`](mejico-awt/src/main/java/org/deletethis/mejico/awt/AwtMejico.java), returns `IconParse<BufferedImage>`
-* [`AndroidMejico.getIconParser()`](mejico-android/src/main/java/org/deletethis/mejico/android/AndroidMejico.java), returns `IconParse<Bitmap>`
+There are two classes with static factory methods to obtain an [`IconParser`](mejico-core/src/main/java/org/deletethis/mejico/IconParser.java), depending on the platform:
+* [`AwtMejico.getIconParser()`](mejico-awt/src/main/java/org/deletethis/mejico/awt/AwtMejico.java), returns [`IconParser<BufferedImage>`](https://docs.oracle.com/javase/8/docs/api/java/awt/image/BufferedImage.html)
+* [`AndroidMejico.getIconParser()`](mejico-android/src/main/java/org/deletethis/mejico/android/AndroidMejico.java), returns [`IconParser<Bitmap>`](https://developer.android.com/reference/kotlin/android/graphics/Bitmap)
 
 
 Check [`IconParser`](mejico-core/src/main/java/org/deletethis/mejico/IconParser.java)
-to see most of the API. It can return a `List` of images contained in `.ico` file. Lower level API
-is in the [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java) class, which allows
-to selectively decode images or access metadata (such as hotspot position in `.cur` file).  
+to see the high level API. It can return a `List` of images contained in `.ico` file. 
+
+Lower level API is in the [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java) 
+class and allows to retrieve image metadata first (including the hotspot position for `.cur` files) and decode 
+selected images afterwards.
+  
 
 ### Examples
 
