@@ -34,7 +34,7 @@ public class RefTest {
     }
 
     private void doTestCase(SuccessTestCase currentTestCase) throws IOException {
-        List<Bitmap> images = IconReaderImpl.getInstance().getIcons(currentTestCase.getIcoFile());
+        List<Bitmap> images = IconReaderImpl.getIconReader().getIcons(currentTestCase.getIcoFile());
 
         List<byte[]> pngs = currentTestCase.getResultAsPng();
 

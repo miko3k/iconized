@@ -1,7 +1,7 @@
 /*
  * mejico - an .ico parser in Java
  *
- * Copyright (c) 2018 Peter Hanula
+ * Copyright (c) 2018-2019 Peter Hanula
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,28 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.deletethis.mejico;
+package org.deletethis.mejico.awt;
+
+import org.deletethis.mejico.IconParser;
+import org.deletethis.mejico.IconReader;
+
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 
 /**
- * An abstract way of creating the {@link WritableImage}
+ * The Java parser of {@code .ico}/{@code .cur} files.
  *
- * @param <T> Type of image which is produced by this factory
+ * It uses ImageIO to load PNG files. {@link BufferedImage} is used as the output format.
  */
-public interface WritableImageFactory<T extends WritableImage> {
+public class AwtMejico {
+    private static IconParser<BufferedImage> INSTANCE = new IconParser<>(new AwtImageDecoder());
+
+    private AwtMejico() {}
+
     /**
-     * Creates an image with specified dimensions
+     * Returns the singleton instance. This method is fast, result does not need to be cached.
      *
-     * @param width desired width
-     * @param height desired height
-     * @return a brand new image
+     * @return the {@link AwtMejico} instance
      */
-    T createWritableImage(int width, int height);
+    public static IconParser<BufferedImage> getIconParser() { return INSTANCE; }
 }

@@ -3,7 +3,7 @@ package org.deletethis.mejico;
 import java.io.IOException;
 
 /**
- * Interface to be called by the {@link AbstractIconParser} when it fails to decode an image.
+ * Interface to be called by the {@link IconParser} when it fails to decode an image.
  *
  * By default such errors are ignored.
  */

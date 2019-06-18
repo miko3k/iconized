@@ -1,7 +1,7 @@
 /*
  * mejico - an .ico parser in Java
  *
- * Copyright (c) 2018 Peter Hanula
+ * Copyright (c) 2018-2019 Peter Hanula
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

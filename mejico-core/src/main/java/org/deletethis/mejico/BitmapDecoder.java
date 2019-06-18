@@ -2,7 +2,7 @@
  * mejico - an .ico parser in Java
  *
  * Copyright (c) 2015-2017 Ian McDonagh
- * Copyright (c) 2018 Peter Hanula
+ * Copyright (c) 2018-2019 Peter Hanula
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,8 +37,8 @@ public class BitmapDecoder<T extends WritableImage> {
         this.writableImageFactory = writableImageFactory;
     }
 
-    private final static int AND_0 = 0xFFFFFFFF;
-    private final static int AND_1 = 0x00000000;
+    private final static int AND_0 = 0;
+    private final static int AND_1 = 1;
 
     private static final int [] andColorTable = new int[]{
             AND_0,

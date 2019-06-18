@@ -17,20 +17,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.deletethis.mejico;
+package org.deletethis.mejico.android;
+
+import android.graphics.Bitmap;
+import org.deletethis.mejico.IconParser;
+import org.deletethis.mejico.IconReader;
+
+import java.io.InputStream;
 
 /**
- * An abstract way of creating the {@link WritableImage}
- *
- * @param <T> Type of image which is produced by this factory
+ * The factory to retrieve parser of {@code .ico}/{@code .cur} files on Android.
  */
-public interface WritableImageFactory<T extends WritableImage> {
+public class AndroidMejico {
+    private static IconParser<Bitmap> INSTANCE = new IconParser<>(new AndroidImageDecoder());
+    private AndroidMejico() {}
+
     /**
-     * Creates an image with specified dimensions
+     * Returns the singleton instance. This method is fast, result does not need to be cached.
      *
-     * @param width desired width
-     * @param height desired height
-     * @return a brand new image
+     * @return the {@link AndroidMejico} instance
      */
-    T createWritableImage(int width, int height);
+    public static IconParser<Bitmap> getIconParser() { return INSTANCE; }
 }

@@ -1,6 +1,6 @@
 package org.deletethis.mejico.reftest;
 
-import org.deletethis.mejico.awt.IconParser;
+import org.deletethis.mejico.awt.AwtMejico;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -18,7 +18,7 @@ public class RefTestsFail {
     @Test
     public void testLoad() {
         try {
-            IconParser.getInstance().getIcons(currentTestCase.getIcoFile());
+            AwtMejico.getIconParser().getIcons(currentTestCase.getIcoFile());
         } catch(Exception ex) {
             if(!currentTestCase.getExceptionClass().isInstance(ex)) {
                 throw new AssertionError("Wrong exception", ex);
