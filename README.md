@@ -27,27 +27,27 @@ Should this project find heavy use, I might consider publishing to Maven Central
 
 ### Structure
 
-Project is split into multiple artifacts:
-* `mejico-core` - core decoding routines, mostly coming from `image4j`
+This project is split into multiple subprojects. Your application should depend on one of the first two.
 * `mejico-awt` - decoder which returns `java.awt.image.BufferedImage`
 * `mejico-andorid` - decoder which returns `android.graphics.Bitmap`
+* `mejico-core` - core decoding routines, mostly coming from `image4j`
 * `mejico-test` - utility classes for unit testing, not intended for public use
 
 Loading of PNG data is delegated to native facilities. This is the main reason why we have
-separate Android and AWT artifacts. 
+separate Android and AWT artifacts. You might want to depend on `mejico-core` only, if you want
+to supply your own PNG (or even BMP) decoder.
 
 ## Usage
 
-There are two versions of `IconParser` one in   
-[`org.deletethis.mejico.awt`](mejico-awt/src/main/java/org/deletethis/mejico/awt/IconParser.java)
-and other in 
-[`org.deletethis.mejico.android`](mejico-android/src/main/java/org/deletethis/mejico/android/IconParser.java).
-You must always obtain a instance using static method `getInstance()`.
+There are two classes with static factory methods to obtain an `IconParser`, depending on the platform:
+* [`AwtMejico.getIconParser()`](mejico-awt/src/main/java/org/deletethis/mejico/awt/AwtMejico.java), returns `IconParse<BufferedImage>`
+* [`AndroidMejico.getIconParser()`](mejico-android/src/main/java/org/deletethis/mejico/android/AndroidMejico.java), returns `IconParse<Bitmap>`
 
-Check [`AbstractIconParser`](mejico-core/src/main/java/org/deletethis/mejico/AbstractIconParser.java)
-to see most of the API. It can return a `List` of images contained in `.ico` file or an
-Check [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java)
-to selectively decode images and/or access metadata (such as hotspot position in `.cur` file).  
+
+Check [`IconParser`](mejico-core/src/main/java/org/deletethis/mejico/IconParser.java)
+to see most of the API. It can return a `List` of images contained in `.ico` file. Lower level API
+is in the [`IconReader`](mejico-core/src/main/java/org/deletethis/mejico/IconReader.java) class, which allows
+to selectively decode images or access metadata (such as hotspot position in `.cur` file).  
 
 ### Examples
 
@@ -57,12 +57,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.deletethis.mejico.awt.IconParser;
+import org.deletethis.mejico.awt.AwtMejico;
 
 class Main {
     public static void main(String[] args) throws IOException {
         InputStream stream = Main.class.getResourceAsStream("bundled_icon.ico");
-        List<BufferedImage> images = IconParser.getInstance().getIcons(Main.class.getResourceAsStream("bundled_icon.ico"));
+        List<BufferedImage> images = AwtMejico.getIconParser().getIcons(Main.class.getResourceAsStream("bundled_icon.ico"));
         // do something with images
     }    
 }
@@ -76,7 +76,7 @@ import java.util.List;
 import android.graphics.Bitmap;
 import android.app.Activity;
 import android.os.Bundle;
-import org.deletethis.mejico.android.IconParser;
+import org.deletethis.mejico.android.AndroidMejico;
 
 class MyActivity extends Activity {
     @Override
@@ -84,7 +84,7 @@ class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         try {
             InputStream stream = getResources().openRawResource(R.raw.resource_id);
-            List<Bitmap> images = IconParser.getInstance().getIcons(stream);
+            List<Bitmap> images = AndroidMejico.getIconParser().getIcons(stream);
             
             // do something with images
             
