@@ -15,23 +15,13 @@ All versions should be supported. Hopefully. Please file a bug and help to impro
 if you find an `.ico` or `.cur` file in the wild, which can be read by any version of Windows 
 and this library fails to do so. 
 
-### Repositories
+### Artifcats
 
-Usage of `mejico-awt` in Java AWT application using Maven
+I decided to stop publishing to Maven Central, coz it is annoying. 
 
-```xml
-<dependency>
-  <groupId>org.deletethis.mejico</groupId>
-  <artifactId>mejico-awt</artifactId>
-  <version>1.0.0</version>
-</dependency>
-```
+Simply snatch this from it from [jitpack](https://jitpack.io/#miko3k/mejico/26b5f1d8c4).
 
-Usage of `mejico-awt` in an Android application using Gradle
- 
-```groovy
-implementation 'org.deletethis.mejico:mejico-android:1.0.0'
-```
+Should this artifact find heavy use, I might consider publishing to Maven Cetral again.
 
 
 ### Structure
